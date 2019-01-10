@@ -21,8 +21,10 @@ are GST which is why they do not perfectly align with the Chinese calander.
 To render from source Ghostscript is required.  Use ps2pdf command.
 Ghostscript 9.05 is currently being used.
 
-ps2pdf -dDEVICEWIDTHPOINTS=2592 -dDEVICEHEIGHTPOINTS=2592 Chinese-2019.ps output.pdf
-
+```
+gs -sDEVICE=pdfwrite -sFONTPATH=/Library/Fonts -dEmbedAllFonts=true \
+  -dDEVICEWIDTHPOINTS=2592 -dDEVICEHEIGHTPOINTS=2592 -outputFile=BigCal-2019.pdf  BigCal-2019.ps
+```
 
 ### How to generate Solar and Luna Events
 pom.py generates the phase of moon and solar sunrise sunset data.  The ouput
