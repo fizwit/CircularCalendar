@@ -1,0 +1,111 @@
+%/*
+%  Calendar grids
+%
+%  John Dey   
+%  Feb 2008
+
+%PS2.0
+
+/xMid 8.5 72 mul 2 div def
+/yMid 11 72 mul 2 div def
+/rOut xMid 26 sub def
+/rIn rOut 102 sub def
+
+/day 29 def
+/mon 11 def
+/months [31 29 31 30 31 30 31 31 30 31 30 31] def
+/names  [(Jan) (Feb) (Mar) (Apr) (May) (Jun) (Jul) (Aug) (Sep) (Oct) (Nov) (Dec) ] def
+/quarters [ (Q1) (Q2) (Q3) (Q4) ] def 
+/week 1 def
+
+/Arial findfont 9 scalefont setfont
+/str 3 string def
+
+%Outer
+xMid yMid rOut  0 360 arc  stroke
+xMid yMid rOut 28 sub  0 360 arc  stroke
+
+xMid yMid rIn  0 360 arc
+stroke
+
+% Horizontal Line
+xMid rOut add yMid moveto rOut rIn sub neg 0 rlineto stroke
+xMid rOut sub yMid moveto rOut rIn sub     0 rlineto stroke
+% Virtical Line
+xMid yMid rOut add moveto 0 rOut rIn sub neg rlineto stroke
+xMid yMid rOut sub moveto 0 rOut rIn sub     rlineto stroke
+ 
+gsave
+xMid yMid translate 
+90 rotate
+
+/rightSet {
+
+} def
+
+% Second Quarter
+/RightQ
+  {gsave
+    neg rotate 
+    week str cvs dup stringwidth pop rIn sub neg 2.5 sub 0 moveto show
+    0 1 6 {
+      Rweek
+    } for
+    /week week 1 add def
+    grestore
+} def
+
+/Rweek
+{
+  % Day of week <dofw> range 0-6 First day is Monday
+  /dofw exch 1 add def  
+
+  % Fudge Factor for week end
+  /fudge 0 def
+  dofw 6 ge {/fudge 3 def} if
+  day str cvs dup stringwidth pop rIn dofw 14 mul add fudge add sub neg 0 moveto show 
+  /day day 1 add def
+  day months mon get gt {/day 1 def /mon mon 1 add def } if
+  mon 11 gt {/mon 0 def } if
+} def
+
+3.5 6.92 360 { RightQ } for 
+grestore
+
+%---------------------------------------------------
+% Print Names of Months inside of <rIn> 
+gsave
+xMid yMid translate 
+75 rotate
+
+/Arial-Bold findfont 14 scalefont setfont
+0 1 11 {
+  names exch get str cvs 
+  rIn 50 sub 0 moveto
+  show
+  30 neg rotate
+} for
+grestore
+
+%---------------------------------------------------
+% Print Names of Quarters ouside of <rOut> 
+gsave
+xMid yMid translate 
+45 rotate
+
+/Arial-Bold findfont 48 scalefont setfont
+0 1 3 {
+  quarters exch get str cvs 
+  rOut 20 add 0 moveto
+  show
+  90 neg rotate
+} for
+grestore
+
+%---------------------------------------------------
+% Print year in Center of Paper
+xMid yMid translate
+/Arial-Bold findfont 48 scalefont setfont
+0 0 moveto
+(2009) dup stringwidth  2 div neg exch 2 div neg exch rmoveto show
+showpage

@@ -1,0 +1,400 @@
+%!PS-Adobe-3.0
+%%Creater: John Dey
+%%CreationDate: Jan 2015
+%%Title: CircularCalendar
+%%Version: 2.0 0
+%%Pages: 1
+%%BoundingBox: 72 72 2522 2522   % 1 in smaller than 36x36
+%%EndComments
+
+%%BeginProlog
+%%BeginProcSet: (John Dey Cir Cal) 2.0 0  
+/year {(2016) } def
+/days_year {366.0} def
+/inch {72.0 mul } def
+/paperWidth  {36 inch } def
+/paperHeight {36 inch } def
+/imageWidth  {34.0 inch } def
+ 
+/xMid {paperWidth 2 div } def
+/yMid {paperHeight 2 div } def
+/fontSize 16 def
+/dayArc {360.0 days_year div} def
+/half_dayArc dayArc 2.0 div def
+/EdgeAngle 450 def          % Messy math for edge text
+/moonR {9} def
+/radO {imageWidth 2.0 div } def
+/rad1 { radO 72.0 sub} def
+/rad2 { rad1 24.0 sub} def
+/rad3 { rad2 24.0 sub } def
+/radI { rad3 24.0 sub } def   % Inside
+/rad6 { radI 72.0 sub} def
+/radD { rad3 6.25 add } def   % Day of Month 
+/radW { radI 8.0 add } def   % Day of Week
+/radM { rad6 moonR sub 3.0 sub} def   % Center of Moon
+
+/Upper {[(JANUARY) (FEBUARY) (MARCH)(APRIL) (MAY) (JUNE) (JULY) 
+          (AUGUST) (SEPTEMBER) (OCTOBER) (NOVEMBER) (DECEMBER) ]} def
+/months {[(January) (Febuary) (March)(April) (May) (June) (July) 
+          (August) (September) (October) (November) (December) ]} def
+/dayofweek { [(S) (M) (T) (W) (T) (F) (S)]} def
+/monthlen {[31 29 31 30 31 30 31 31 30 31 30 32] } def
+
+/tick {  % create tick mark at x y tick
+  .5 setlinewidth
+  0 setgray
+  6 sub moveto
+  0 12 rlineto
+  gsave stroke grestore
+  -6 -6 rmoveto
+  12 0 rlineto stroke
+} def
+
+% circletext from Adobe Cook Book (Blue Book)
+% john dey 2015 Dict commands have been removed to make
+% compatable with DSC 3 Prolog 
+
+% ‘‘outsidecircletext’’ takes four arguments: the string to
+% show, the point size of the font to use, the angle around
+% which the text should be centered, and the radius of the
+% circular arc. It assumes that the center of the circle is at (0,0)
+
+%%-------------------
+/outsidecircletext { 
+  /radius exch def
+  /centerangle exch def
+  /ptsize exch def
+  /str exch def
+  /xradius radius ptsize 4 div add def
+    gsave 
+    centerangle str findhalfangle add rotate 
+    str
+      { /charcode exch def
+        ( ) dup 0 charcode put outsideplacechar
+      } forall
+    grestore
+} def
+
+/insidecircletext { 
+  /radius exch def /centerangle exch def
+  /ptsize exch def /str exch def
+
+  /xradius radius ptsize 3 div sub def
+  gsave
+    centerangle str findhalfangle sub rotate
+    str
+      { /charcode exch def
+        ( ) dup 0 charcode put insideplacechar
+      } forall
+    grestore
+} def
+
+%%/circtextdict {16 dict} def
+/findhalfangle { 
+  stringwidth pop 2 div
+  2 xradius mul pi mul div 360 mul
+} def
+
+/outsideplacechar { 
+  /char exch def
+  /halfangle char findhalfangle def
+  gsave
+    halfangle neg rotate
+    radius 0 translate
+    -90 rotate 
+    char stringwidth pop 2 div neg 0 moveto 
+    char show
+  grestore
+  halfangle 2 mul neg rotate
+} def
+
+/insideplacechar { 
+  /char exch def
+  /halfangle char findhalfangle def
+  gsave
+    halfangle rotate
+    radius 0 translate
+    90 rotate
+    char stringwidth pop 2 div neg 0 moveto
+    char show
+    grestore
+    halfangle 2 mul rotate
+} def
+/pi {3.1415923} def
+% End Circle Text
+%-------------------
+
+%/Xmark {  % Place an X in outer box BROKE
+%  newpath 2 setlinewidth
+%  xMid radO moveto
+%  xMid dayArc add  rad1 lineto stroke
+%  newpath
+%  xMid dayArc add radO moveto
+%  xMid rad1 lineto stroke
+%} def
+
+/AngleText { % x,y,angle,text
+   /text exch def
+   /rot exch def
+   /y exch def
+   /x exch def
+   /shift text stringwidth pop 2 div neg def
+   x y moveto
+   gsave
+    rot rotate
+    shift 0 rmoveto
+    text show
+   grestore
+} def
+
+/radianpoint {  % move to angle and radius
+    /Rangle exch def
+    /Radius exch def
+    xMid Rangle cos Radius mul add
+    yMid Rangle sin Radius mul add moveto
+} def
+
+/radianLine {
+    /Rangle exch def
+    /insideR exch def
+    /outsideR exch def
+    xMid Rangle cos insideR mul add
+    yMid Rangle sin insideR mul add moveto
+    xMid Rangle cos outsideR mul add
+    yMid Rangle sin outsideR mul add lineto stroke
+} def
+/radianline {
+    gsave 
+    0 setgray 
+    %.5 setlinewidth
+    radianLine
+    grestore } def
+/radianlinewhite { 
+  /lweight exch def
+  gsave 
+  1 setgray  % White
+  lweight (norm) eq { 
+      2 setlinecap  
+      1 setlinewidth } if
+  lweight (thick) eq { 
+      1.5 setlinewidth 
+      0 setlinecap   } if
+  radianLine
+  grestore } def
+  
+  /ruler {
+    /hr 7 def
+    .25 setlinewidth
+    gsave  
+    450 77.5 neg rotate
+    1 1 14 { /index exch def 
+            newpath
+            %xMid yMid hr 36.0 mul  0 360 arc  stroke
+            xMid hr 36.0 mul add yMid moveto
+            0 12 rlineto stroke
+            xMid hr 36.0 mul add yMid 1 sub moveto 
+            Hours index get show
+            /hr hr 1 add def
+    } for 
+    grestore
+  } def
+
+  % Draw radian lines for Sun set/rise
+  % input stack: day_num rise set
+  % day_num 1:265
+  % Sun SetRise data is decimal formated hours
+  /Sol {
+    /set exch  36.0 mul radI exch sub def
+    /rise exch 36.0 mul radI exch sub def
+    /day_num exch def 
+    /angle 450 day_num dayArc mul half_dayArc sub sub def
+    .25 setlinewidth
+    rise set angle radianLine
+  } def
+
+  % pom Phase of Moon (new full)Draw New Moon (Black)
+  /pom {
+         /phase exch def
+         /text exch def
+         /angle exch def % 450 exch sub def
+         /langle 450 angle sub def
+        angle text event
+        radM langle radianpoint 
+        gsave
+          currentpoint /y exch def /x exch def
+          .25 setlinewidth
+          newpath
+          x y moonR 0 360 arc stroke  % Full Moon
+          x y moveto 
+          phase (New)  eq {currentpoint moonR 0 360 arc eofill} if
+          langle rotate
+          phase (First) eq {currentpoint moonR 90 270 arc fill } if  
+          phase (Last)  eq {currentpoint moonR 270 90 arc fill } if
+        grestore
+      } bind def
+
+  /event {  % place text and radian line on Calander 
+         /text exch def
+         /angle exch def
+        gsave
+        %/Helvetica findfont 8 scalefont setfont
+        /BabelSans findfont 8 scalefont setfont
+         .25 setlinewidth
+         /langle 450 angle sub def
+         radI rad6 langle radianLine 
+         angle 180 gt {rad6 text stringwidth pop add langle radianpoint 
+                       270 angle sub rotate 0 1 rmoveto text show }
+                      {rad6 langle radianpoint  % moveto
+                       langle rotate 0 1 rmoveto text show } ifelse
+        grestore
+  } bind def
+
+      %Left side black
+      /firstMoon {   
+         /text exch def
+         /angle exch 450 exch sub def
+         rad3 rad6 angle radianline 
+         rad6 angle radianpoint 
+         gsave 
+           %/Helvetica findfont 8 scalefont setfont
+           /BabelSans findfont 8 scalefont setfont
+           angle rotate 0 1 rmoveto text show grestore
+         radM angle radianpoint 
+         gsave angle rotate 
+         grestore
+      } bind def
+
+      %Black to right side
+      /lastMoon { 
+         gsave 
+         grestore
+      } bind def
+
+%%EndProcSet
+%%EndProlog
+
+%%BeginSetup
+%%IncludeResources: font Helvetica 
+%%IncludeResources: font Helvetica-Bold
+%%IncludeResources: font BabelSans
+%  [36 36] PageSize
+%setpagedevice 
+%%EndSetup
+
+%%Page: 1 1
+/mI   0 def    % Month Index 0=Jan, 
+/dowI 5 def    % Day Of week Index for 1st day of the year
+               % 0-Sun, 1-Mon, 6=Sa 
+/dom  1 def    % Day Of Month 1=1, 
+
+%  Year text in Center
+/Helvetica-Bold findfont 278 scalefont setfont
+year stringwidth pop /half exch 2.0 div def
+xMid half sub yMid moveto year show 
+xMid half sub 7.7 add yMid 9 sub moveto
+/Helvetica findfont 8 scalefont setfont
+(Designed by John Dey) show
+%xMid yMid tick
+newpath
+
+
+% Place Month Text 
+% Arc Lenght calculation: angle = ArcLen * (360.0/pi*D)
+/CenterAngle 450 half_dayArc sub def % center of box, center for text 
+/Helvetica-Bold findfont 68 scalefont setfont
+/outsideMonth rad1 22 add def  %% radus for Month type
+/insideMonth rad1 70 add def  %% radus for Month type
+/monthAngle 435 def
+/ledge EdgeAngle def
+/doy 0 def
+gsave   % Write Names of Months
+  xMid yMid translate
+  0 1 11 { /index exch def 
+    months index get
+    %%  reverse text every other month
+    %/doy doy monthlen index get add def
+    %/rightEdge EdgeAngle doy dayArc mul sub def
+    %index 2 mod 0 eq {   
+    %    0 0 radO ledge rightEdge arcn
+    %    0 0 rad1 rightEdge ledge arc closepath fill 
+    %    1 setgray 
+    %} if   % End reverse text every other month
+    %%%monthAngle 360 gt monthAngle 180 lt or
+    %%%{ 68 monthAngle insideMonth insidecircletext 
+    %%%} ifelse
+    68 monthAngle outsideMonth outsidecircletext 
+    %0 setgray  % Black
+    /monthAngle monthAngle 30 sub def
+    %/ledge rightEdge def
+  } for
+grestore
+
+%  Draw the Gray boxes first! 
+/edge EdgeAngle def          % Messy math for edge text
+0 1 days_year 1 sub { /doy exch def
+  doy 2 mod 1 eq 
+   {xMid yMid rad2 edge edge dayArc sub arcn
+    xMid yMid rad3 edge dayArc sub edge arc 
+    .85 setgray closepath fill 0 setgray} if
+  /edge edge dayArc sub def
+} for
+
+newpath
+% Outer Arcs for Months, Boxes, Days of Month, Days of Week
+2 setlinewidth  %% Heavest Line Used Only Once!
+xMid yMid radO 24 add 0 360 arc stroke    % Outer
+xMid yMid rad1 0 360 arc  stroke
+xMid yMid radI 0 360 arc  stroke   % Inner
+1 setlinewidth
+xMid yMid rad2 0 360 arc  stroke
+xMid yMid rad3 0 360 arc  stroke
+
+/s2 2 string def  % string for Day of Month
+/edge EdgeAngle def          % Messy math for edge text
+0 1 days_year 1 sub { /doy exch def
+  % gray shade Even Days (but 0 = 1 at the start) 
+  newpath
+  % define angle for each day
+  /xc CenterAngle cos def  /yc CenterAngle sin def
+  /plus90 CenterAngle 270 add def
+  % Draw Lines between days
+  rad1 radI edge radianline 
+  % draw lines between Weeks
+  % draw lines between Months, Use heavier line 
+  1 dom eq { 
+     1.5 setlinewidth radO 24 add radI edge radianLine %% Changed  rad1 or radO 1-11-15
+     1 setlinewidth } if  
+
+  % Lable Day of Month 
+  /BabelSans findfont fontSize scalefont setfont
+  xMid xc radD mul add yMid yc radD mul add plus90 dom s2 cvs AngleText 
+
+
+  % reverse Sat Sun 
+  newpath
+  0 dowI 7 mod eq 6 dowI 7 mod eq or 
+   {xMid yMid rad3 edge edge dayArc sub arcn
+    xMid yMid radI edge dayArc sub edge arc closepath fill 
+    1 setgray 
+   } if  % setgray too white if Sun or Sat
+
+  % draw white line btw Sat Sun
+  0 dowI 7 mod eq { radI .5 sub rad3 edge (norm) radianlinewhite } if
+  %% draw heavy line btw Sat Sun AND btw Months 
+  0 dowI 7 mod eq  1 dom eq and 
+      { radI 1 sub rad3 .5 add edge (thick) radianlinewhite } if 
+  /BabelSans findfont 12 scalefont setfont
+  xMid xc radW mul add yMid yc radW mul add plus90 
+    dayofweek dowI 7 mod get AngleText
+  0 setgray
+
+  % Move to next day
+  /CenterAngle CenterAngle dayArc sub def
+  /edge edge dayArc sub def
+  /dowI dowI 1 add def   % index for dayofweek
+  /dom  dom  1 add def   % day of month
+  dom monthlen mI get gt { /dom 1 def /mI mI 1 add def} if
+} for 
+1 setlinewidth
+
+%%  import Astro data from pom.py

@@ -1,0 +1,798 @@
+%!PS-Adobe-3.0
+%%Creater: John Dey
+%%CreationDate: Jan 2015
+%%Title: CircularCalendar
+%%Version: 2.0 0
+%%Pages: 1
+%%BoundingBox: 72 72 2522 2522   % 1 in smaller than 36x36
+%%EndComments
+
+%%BeginProlog
+%%BeginProcSet: (John Dey Cir Cal) 2.0 0  
+/year {(2015) } def
+/inch {72.0 mul } def
+/paperWidth  {36 inch } def
+/paperHeight {36 inch } def
+/imageWidth  {34.0 inch } def
+ 
+/xMid {paperWidth 2 div } def
+/yMid {paperHeight 2 div } def
+/fontSize 16 def
+/dayArc {360.0 365.0 div} def
+/EdgeAngle 450 def          % Messy math for edge text
+/moonR {9} def
+/radO {imageWidth 2.0 div } def
+/rad1 { radO 72.0 sub} def
+/rad2 { rad1 24.0 sub} def
+/rad3 { rad2 24.0 sub } def
+/radI { rad3 24.0 sub } def   % Inside
+/rad6 { radI 72.0 sub} def
+/radD { rad3 6.25 add } def   % Day of Month 
+/radW { radI 8.0 add } def   % Day of Week
+/radM { rad6 moonR sub 3.0 sub} def   % Center of Moon
+
+/Upper {[(JANUARY) (FEBUARY) (MARCH)(APRIL) (MAY) (JUNE) (JULY) 
+          (AUGUST) (SEPTEMBER) (OCTOBER) (NOVEMBER) (DECEMBER) ]} def
+/months {[(January) (Febuary) (March)(April) (May) (June) (July) 
+          (August) (September) (October) (November) (December) ]} def
+/dayofweek { [(S) (M) (T) (W) (T) (F) (S)]} def
+/monthlen {[31 28 31 30 31 30 31 31 30 31 30 31] } def
+
+% circletext from Adobe Cook Book (Blue Book)
+% john dey 2015 Dict commands have been removed to make
+% compatable with DSC 3 Prolog 
+
+% ‘‘outsidecircletext’’ takes four arguments: the string to
+% show, the point size of the font to use, the angle around
+% which the text should be centered, and the radius of the
+% circular arc. It assumes that the center of the circle is at (0,0)
+
+%%-------------------
+/outsidecircletext { 
+  /radius exch def
+  /centerangle exch def
+  /ptsize exch def
+  /str exch def
+  /xradius radius ptsize 4 div add def
+    gsave 
+    centerangle str findhalfangle add rotate 
+    str
+      { /charcode exch def
+        ( ) dup 0 charcode put outsideplacechar
+      } forall
+    grestore
+} def
+
+/insidecircletext { 
+  /radius exch def /centerangle exch def
+  /ptsize exch def /str exch def
+
+  /xradius radius ptsize 3 div sub def
+  gsave
+    centerangle str findhalfangle sub rotate
+    str
+      { /charcode exch def
+        ( ) dup 0 charcode put insideplacechar
+      } forall
+    grestore
+} def
+
+%%/circtextdict {16 dict} def
+/findhalfangle { 
+  stringwidth pop 2 div
+  2 xradius mul pi mul div 360 mul
+} def
+
+/outsideplacechar { 
+  /char exch def
+  /halfangle char findhalfangle def
+  gsave
+    halfangle neg rotate
+    radius 0 translate
+    -90 rotate 
+    char stringwidth pop 2 div neg 0 moveto 
+    char show
+  grestore
+  halfangle 2 mul neg rotate
+} def
+
+/insideplacechar { 
+  /char exch def
+  /halfangle char findhalfangle def
+  gsave
+    halfangle rotate
+    radius 0 translate
+    90 rotate
+    char stringwidth pop 2 div neg 0 moveto
+    char show
+    grestore
+    halfangle 2 mul rotate
+} def
+/pi {3.1415923} def
+% End Circle Text
+%-------------------
+
+/AngleText { % x,y,angle,text
+   /text exch def
+   /rot exch def
+   /y exch def
+   /x exch def
+   /shift text stringwidth pop 2 div neg def
+   x y moveto
+   gsave
+    rot rotate
+    shift 0 rmoveto
+    text show
+   grestore
+} def
+
+/radianpoint {  % move to angle and radius
+    /Rangle exch def
+    /Radius exch def
+    xMid Rangle cos Radius mul add
+    yMid Rangle sin Radius mul add moveto
+} def
+
+/radianLine {
+    /Rangle exch def
+    /insideR exch def
+    /outsideR exch def
+    xMid Rangle cos insideR mul add
+    yMid Rangle sin insideR mul add moveto
+    xMid Rangle cos outsideR mul add
+    yMid Rangle sin outsideR mul add lineto stroke
+} def
+/radianline {
+    gsave 
+    0 setgray 
+    %.5 setlinewidth
+    radianLine
+    grestore } def
+/radianlinewhite { 
+  /lweight exch def
+  gsave 
+  1 setgray  % White
+  lweight (norm) eq { 
+      2 setlinecap  
+      1 setlinewidth } if
+  lweight (thick) eq { 
+      1.5 setlinewidth 
+      0 setlinecap   } if
+  radianLine
+  grestore } def
+  
+  /ruler {
+    /hr 7 def
+    .25 setlinewidth
+    gsave  
+    450 77.5 neg rotate
+    1 1 14 { /index exch def 
+            newpath
+            %xMid yMid hr 36.0 mul  0 360 arc  stroke
+            xMid hr 36.0 mul add yMid moveto
+            0 12 rlineto stroke
+            xMid hr 36.0 mul add yMid 1 sub moveto 
+            Hours index get show
+            /hr hr 1 add def
+    } for 
+    grestore
+  } def
+
+  /Sol {
+    /set exch  36.0 mul radI exch sub def
+    /rise exch 36.0 mul radI exch sub def
+    /angle exch 450 exch sub def
+    .25 setlinewidth
+    rise set angle radianLine
+  } def
+
+  % pom Phase of Moon (new full)Draw New Moon (Black)
+  /pom {
+         /phase exch def
+         /text exch def
+         /angle exch def % 450 exch sub def
+         /langle 450 angle sub def
+        angle text event
+        radM langle radianpoint 
+        gsave
+          currentpoint /y exch def /x exch def
+          .25 setlinewidth
+          newpath
+          x y moonR 0 360 arc stroke  % Full Moon
+          x y moveto 
+          phase (New)  eq {currentpoint moonR 0 360 arc eofill} if
+          langle rotate
+          phase (First) eq {currentpoint moonR 90 270 arc fill } if  
+          phase (Last)  eq {currentpoint moonR 270 90 arc fill } if
+        grestore
+      } bind def
+
+  /event {  % place text and radian line on Calander 
+         /text exch def
+         /angle exch def
+        gsave
+        %/Helvetica findfont 8 scalefont setfont
+        /BabelSans findfont 8 scalefont setfont
+         .25 setlinewidth
+         /langle 450 angle sub def
+         radI rad6 langle radianLine 
+         angle 180 gt {rad6 text stringwidth pop add langle radianpoint 
+                       270 angle sub rotate 0 1 rmoveto text show }
+                      {rad6 langle radianpoint  % moveto
+                       langle rotate 0 1 rmoveto text show } ifelse
+        grestore
+  } bind def
+
+      %Left side black
+      /firstMoon {   
+         /text exch def
+         /angle exch 450 exch sub def
+         rad3 rad6 angle radianline 
+         rad6 angle radianpoint 
+         gsave 
+           %/Helvetica findfont 8 scalefont setfont
+           /BabelSans findfont 8 scalefont setfont
+           angle rotate 0 1 rmoveto text show grestore
+         radM angle radianpoint 
+         gsave angle rotate 
+         grestore
+      } bind def
+
+      %Black to right side
+      /lastMoon { 
+         gsave 
+         grestore
+      } bind def
+
+%%EndProcSet
+%%EndProlog
+
+%%BeginSetup
+%%IncludeResources: font Helvetica 
+%%IncludeResources: font Helvetica-Bold
+%%IncludeResources: font BabelSans
+%  [36 36] PageSize
+%setpagedevice 
+%%EndSetup
+
+%%Page: 1 1
+/mI   0 def    % Month Index 0=Jan, 
+/dowI 4 def    % Day Of week Index for 1st day of the year
+               % 0-Sun, 1-Mon, 6=Sa 
+/dom  1 def    % Day Of Month 1=1, 
+
+%  Year in Center
+/Helvetica-Bold findfont 278 scalefont setfont
+year stringwidth pop /half exch 2.0 div def
+xMid half sub yMid moveto year show 
+xMid half sub 7.7 add yMid 9 sub moveto
+/Helvetica findfont 8 scalefont setfont
+(Designed by John Dey) show
+newpath
+
+
+% Place Month Text 
+% Arc Lenght calculation: angle = ArcLen * (360.0/pi*D)
+/CenterAngle 450 dayArc 2.0 div sub def % center of box, center for text 
+/Helvetica-Bold findfont 68 scalefont setfont
+/outsideMonth rad1 22 add def  %% radus for Month type
+/insideMonth rad1 70 add def  %% radus for Month type
+/monthAngle 435 def
+/ledge EdgeAngle def
+/doy 0 def
+gsave   % Write Names of Months
+  xMid yMid translate
+  0 1 11 { /index exch def 
+    months index get
+    %%  reverse text every other month
+    %/doy doy monthlen index get add def
+    %/rightEdge EdgeAngle doy dayArc mul sub def
+    %index 2 mod 0 eq {   
+    %    0 0 radO ledge rightEdge arcn
+    %    0 0 rad1 rightEdge ledge arc closepath fill 
+    %    1 setgray 
+    %} if   % End reverse text every other month
+    %%%monthAngle 360 gt monthAngle 180 lt or
+    %%%{ 68 monthAngle insideMonth insidecircletext 
+    %%%} ifelse
+    68 monthAngle outsideMonth outsidecircletext 
+    %0 setgray  % Black
+    /monthAngle monthAngle 30 sub def
+    %/ledge rightEdge def
+  } for
+grestore
+
+%  Draw the Gray boxes first! 
+/edge EdgeAngle def          % Messy math for edge text
+0 1 364 { /doy exch def
+  doy 2 mod 1 eq 
+   {xMid yMid rad2 edge edge dayArc sub arcn
+    xMid yMid rad3 edge dayArc sub edge arc 
+    .85 setgray closepath fill 0 setgray} if
+  /edge edge dayArc sub def
+} for
+
+newpath
+% Outer Arcs for Months, Boxes, Days of Month, Days of Week
+2 setlinewidth  %% Heavest Line Used Only Once!
+xMid yMid radO 24 add 0 360 arc stroke    % Outer
+xMid yMid rad1 0 360 arc  stroke
+xMid yMid radI 0 360 arc  stroke   % Inner
+1 setlinewidth
+xMid yMid rad2 0 360 arc  stroke
+xMid yMid rad3 0 360 arc  stroke
+
+/s2 2 string def  % string for Day of Month
+/edge EdgeAngle def          % Messy math for edge text
+0 1 364 { /doy exch def
+  % gray shade Even Days (but 0 = 1 at the start) 
+  newpath
+  % define angle for each day
+  /xc CenterAngle cos def  /yc CenterAngle sin def
+  /plus90 CenterAngle 270 add def
+  % Draw Lines between days
+  rad1 radI edge radianline 
+  % draw lines between Weeks
+  % draw lines between Months, Use heavier line 
+  1 dom eq { 
+     1.5 setlinewidth radO 24 add radI edge radianLine %% Changed  rad1 or radO 1-11-15
+     1 setlinewidth } if  
+
+  % Lable Day of Month 
+  /BabelSans findfont fontSize scalefont setfont
+  xMid xc radD mul add yMid yc radD mul add plus90 dom s2 cvs AngleText 
+
+
+  % reverse Sat Sun 
+  newpath
+  0 dowI 7 mod eq 6 dowI 7 mod eq or 
+   {xMid yMid rad3 edge edge dayArc sub arcn
+    xMid yMid radI edge dayArc sub edge arc closepath fill 
+    1 setgray 
+   } if  % setgray too white if Sun or Sat
+
+  % draw white line btw Sat Sun
+  0 dowI 7 mod eq { radI .5 sub rad3 edge (norm) radianlinewhite } if
+  %% draw heavy line btw Sat Sun AND btw Months 
+  0 dowI 7 mod eq  1 dom eq and 
+      { radI 1 sub rad3 .5 add edge (thick) radianlinewhite } if 
+  /Helvetica-Bold findfont 12 scalefont setfont
+  xMid xc radW mul add yMid yc radW mul add plus90 
+    dayofweek dowI 7 mod get AngleText
+  0 setgray
+
+  % Move to next day
+  /CenterAngle CenterAngle dayArc sub def
+  /edge edge dayArc sub def
+  /dowI dowI 1 add def   % index for dayofweek
+  /dom  dom  1 add def   % day of month
+  dom monthlen mI get gt { /dom 1 def /mI mI 1 add def} if
+} for 
+1 setlinewidth
+
+
+ 77.86 (Spring Equinox 22:45) event
+169.33 (Summer Soltice 16:38) event
+261.71 (Fall Equinox 08:20) event
+350.31 (Winter Soltice 04:47) event
+
+  4.11 (Full Moon 04:53) (Full) pom
+ 33.52 (Full Moon 23:08) (Full) pom
+ 62.90 (Full Moon 18:05) (Full) pom
+ 92.23 (Full Moon 12:05) (Full) pom
+121.44 (Full Moon 03:42) (Full) pom
+150.59 (Full Moon 16:19) (Full) pom
+179.59 (Full Moon 02:19) (Full) pom
+208.53 (Full Moon 10:42) (Full) pom
+237.47 (Full Moon 18:35) (Full) pom
+266.39 (Full Moon 02:50) (Full) pom
+295.41 (Full Moon 12:05) (Full) pom
+324.44 (Full Moon 22:44) (Full) pom
+353.56 (Full Moon 11:11) (Full) pom
+ 19.29 (New Moon 13:13) (New) pom
+ 48.31 (New Moon 23:47) (New) pom
+ 77.31 (New Moon 09:36) (New) pom
+106.29 (New Moon 18:56) (New) pom
+135.29 (New Moon 04:13) (New) pom
+164.32 (New Moon 14:05) (New) pom
+193.36 (New Moon 01:24) (New) pom
+222.51 (New Moon 14:53) (New) pom
+251.76 (New Moon 06:41) (New) pom
+281.10 (New Moon 00:05) (New) pom
+310.42 (New Moon 17:47) (New) pom
+339.71 (New Moon 10:29) (New) pom
+% For Julia
+ 25.81 (First Quarter 04:48) (First) pom
+ 54.96 (First Quarter 17:14) (First) pom
+ 84.13 (First Quarter 07:42) (First) pom
+113.41 (First Quarter 23:55) (First) pom
+142.75 (First Quarter 17:18) (First) pom
+172.08 (First Quarter 11:02) (First) pom
+201.37 (First Quarter 04:03) (First) pom
+230.61 (First Quarter 19:31) (First) pom
+259.74 (First Quarter 08:59) (First) pom
+288.84 (First Quarter 20:31) (First) pom
+317.84 (First Quarter 06:27) (First) pom
+346.83 (First Quarter 15:14) (First) pom
+ 12.22 (Last Quarter 09:46) (Last) pom
+ 41.55 (Last Quarter 03:49) (Last) pom
+ 70.75 (Last Quarter 17:47) (Last) pom
+ 99.74 (Last Quarter 03:44) (Last) pom
+128.64 (Last Quarter 10:36) (Last) pom
+157.46 (Last Quarter 15:41) (Last) pom
+186.27 (Last Quarter 20:23) (Last) pom
+215.10 (Last Quarter 02:02) (Last) pom
+244.00 (Last Quarter 09:54) (Last) pom
+273.11 (Last Quarter 21:06) (Last) pom
+302.32 (Last Quarter 12:23) (Last) pom
+331.69 (Last Quarter 07:40) (Last) pom
+
+
+  0.51  7.983 16.433 Sol
+  1.49  7.983 16.450 Sol
+  2.48  7.983 16.467 Sol
+  3.47  7.983 16.483 Sol
+  4.45  7.983 16.500 Sol
+  5.44  7.967 16.517 Sol
+  6.42  7.967 16.533 Sol
+  7.41  7.967 16.567 Sol
+  8.40  7.950 16.583 Sol
+  9.38  7.950 16.600 Sol
+ 10.37  7.950 16.617 Sol
+ 11.36  7.933 16.650 Sol
+ 12.34  7.917 16.667 Sol
+ 13.33  7.917 16.683 Sol
+ 14.32  7.900 16.717 Sol
+ 15.30  7.900 16.733 Sol
+ 16.29  7.883 16.750 Sol
+ 17.27  7.867 16.783 Sol
+ 18.26  7.850 16.800 Sol
+ 19.25  7.833 16.833 Sol
+ 20.23  7.833 16.850 Sol
+ 21.22  7.817 16.883 Sol
+ 22.21  7.800 16.900 Sol
+ 23.19  7.783 16.933 Sol
+ 24.18  7.767 16.950 Sol
+ 25.16  7.733 16.983 Sol
+ 26.15  7.717 17.000 Sol
+ 27.14  7.700 17.033 Sol
+ 28.12  7.683 17.050 Sol
+ 29.11  7.667 17.083 Sol
+ 30.10  7.650 17.117 Sol
+ 31.08  7.617 17.133 Sol
+ 32.07  7.600 17.167 Sol
+ 33.05  7.583 17.183 Sol
+ 34.04  7.550 17.217 Sol
+ 35.03  7.533 17.233 Sol
+ 36.01  7.500 17.267 Sol
+ 37.00  7.483 17.300 Sol
+ 37.99  7.450 17.317 Sol
+ 38.97  7.433 17.350 Sol
+ 39.96  7.400 17.367 Sol
+ 40.95  7.383 17.400 Sol
+ 41.93  7.350 17.417 Sol
+ 42.92  7.333 17.450 Sol
+ 43.90  7.300 17.483 Sol
+ 44.89  7.267 17.500 Sol
+ 45.88  7.250 17.533 Sol
+ 46.86  7.217 17.550 Sol
+ 47.85  7.183 17.583 Sol
+ 48.84  7.150 17.617 Sol
+ 49.82  7.133 17.633 Sol
+ 50.81  7.100 17.667 Sol
+ 51.79  7.067 17.683 Sol
+ 52.78  7.033 17.717 Sol
+ 53.77  7.017 17.733 Sol
+ 54.75  6.983 17.767 Sol
+ 55.74  6.950 17.783 Sol
+ 56.73  6.917 17.817 Sol
+ 57.71  6.883 17.833 Sol
+ 58.70  6.850 17.867 Sol
+ 59.69  6.817 17.883 Sol
+ 60.67  6.783 17.917 Sol
+ 61.66  6.750 17.933 Sol
+ 62.64  6.733 17.967 Sol
+ 63.63  6.700 17.983 Sol
+ 64.62  6.667 18.017 Sol
+ 65.60  7.633 19.033 Sol
+ 66.59  7.600 19.067 Sol
+ 67.58  7.567 19.083 Sol
+ 68.56  7.533 19.117 Sol
+ 69.55  7.500 19.133 Sol
+ 70.53  7.467 19.167 Sol
+ 71.52  7.433 19.183 Sol
+ 72.51  7.400 19.217 Sol
+ 73.49  7.367 19.233 Sol
+ 74.48  7.333 19.250 Sol
+ 75.47  7.300 19.283 Sol
+ 76.45  7.267 19.300 Sol
+ 77.44  7.233 19.333 Sol
+ 78.42  7.200 19.350 Sol
+ 79.41  7.167 19.383 Sol
+ 80.40  7.133 19.400 Sol
+ 81.38  7.100 19.433 Sol
+ 82.37  7.050 19.450 Sol
+ 83.36  7.017 19.467 Sol
+ 84.34  6.983 19.500 Sol
+ 85.33  6.950 19.517 Sol
+ 86.32  6.917 19.550 Sol
+ 87.30  6.883 19.567 Sol
+ 88.29  6.850 19.583 Sol
+ 89.27  6.817 19.617 Sol
+ 90.26  6.783 19.633 Sol
+ 91.25  6.750 19.667 Sol
+ 92.23  6.717 19.683 Sol
+ 93.22  6.683 19.717 Sol
+ 94.21  6.650 19.733 Sol
+ 95.19  6.617 19.750 Sol
+ 96.18  6.583 19.783 Sol
+ 97.16  6.550 19.800 Sol
+ 98.15  6.533 19.833 Sol
+ 99.14  6.500 19.850 Sol
+100.12  6.467 19.867 Sol
+101.11  6.433 19.900 Sol
+102.10  6.400 19.917 Sol
+103.08  6.367 19.950 Sol
+104.07  6.333 19.967 Sol
+105.05  6.300 19.983 Sol
+106.04  6.267 20.017 Sol
+107.03  6.233 20.033 Sol
+108.01  6.217 20.067 Sol
+109.00  6.183 20.083 Sol
+109.99  6.150 20.117 Sol
+110.97  6.117 20.133 Sol
+111.96  6.100 20.150 Sol
+112.95  6.067 20.183 Sol
+113.93  6.033 20.200 Sol
+114.92  6.000 20.233 Sol
+115.90  5.983 20.250 Sol
+116.89  5.950 20.267 Sol
+117.88  5.917 20.300 Sol
+118.86  5.900 20.317 Sol
+119.85  5.867 20.333 Sol
+120.84  5.833 20.367 Sol
+121.82  5.817 20.383 Sol
+122.81  5.783 20.417 Sol
+123.79  5.767 20.433 Sol
+124.78  5.733 20.450 Sol
+125.77  5.717 20.483 Sol
+126.75  5.683 20.500 Sol
+127.74  5.667 20.517 Sol
+128.73  5.650 20.550 Sol
+129.71  5.617 20.567 Sol
+130.70  5.600 20.583 Sol
+131.69  5.583 20.600 Sol
+132.67  5.550 20.633 Sol
+133.66  5.533 20.650 Sol
+134.64  5.517 20.667 Sol
+135.63  5.500 20.683 Sol
+136.62  5.483 20.717 Sol
+137.60  5.467 20.733 Sol
+138.59  5.450 20.750 Sol
+139.58  5.433 20.767 Sol
+140.56  5.417 20.783 Sol
+141.55  5.400 20.800 Sol
+142.53  5.383 20.833 Sol
+143.52  5.367 20.850 Sol
+144.51  5.350 20.867 Sol
+145.49  5.333 20.883 Sol
+146.48  5.317 20.900 Sol
+147.47  5.317 20.917 Sol
+148.45  5.300 20.933 Sol
+149.44  5.283 20.950 Sol
+150.42  5.283 20.950 Sol
+151.41  5.267 20.967 Sol
+152.40  5.267 20.983 Sol
+153.38  5.250 21.000 Sol
+154.37  5.250 21.017 Sol
+155.36  5.233 21.033 Sol
+156.34  5.233 21.033 Sol
+157.33  5.217 21.050 Sol
+158.32  5.217 21.067 Sol
+159.30  5.217 21.067 Sol
+160.29  5.217 21.083 Sol
+161.27  5.217 21.083 Sol
+162.26  5.217 21.100 Sol
+163.25  5.200 21.100 Sol
+164.23  5.200 21.117 Sol
+165.22  5.200 21.117 Sol
+166.21  5.217 21.117 Sol
+167.19  5.217 21.133 Sol
+168.18  5.217 21.133 Sol
+169.16  5.217 21.133 Sol
+170.15  5.217 21.133 Sol
+171.14  5.217 21.150 Sol
+172.12  5.233 21.150 Sol
+173.11  5.233 21.150 Sol
+174.10  5.250 21.150 Sol
+175.08  5.250 21.150 Sol
+176.07  5.250 21.150 Sol
+177.05  5.267 21.133 Sol
+178.04  5.267 21.133 Sol
+179.03  5.283 21.133 Sol
+180.01  5.300 21.133 Sol
+181.00  5.300 21.133 Sol
+181.99  5.317 21.117 Sol
+182.97  5.333 21.117 Sol
+183.96  5.333 21.100 Sol
+184.95  5.350 21.100 Sol
+185.93  5.367 21.083 Sol
+186.92  5.383 21.083 Sol
+187.90  5.400 21.067 Sol
+188.89  5.417 21.067 Sol
+189.88  5.433 21.050 Sol
+190.86  5.433 21.033 Sol
+191.85  5.450 21.017 Sol
+192.84  5.467 21.017 Sol
+193.82  5.483 21.000 Sol
+194.81  5.500 20.983 Sol
+195.79  5.517 20.967 Sol
+196.78  5.550 20.950 Sol
+197.77  5.567 20.933 Sol
+198.75  5.583 20.917 Sol
+199.74  5.600 20.900 Sol
+200.73  5.617 20.883 Sol
+201.71  5.633 20.867 Sol
+202.70  5.650 20.850 Sol
+203.69  5.683 20.817 Sol
+204.67  5.700 20.800 Sol
+205.66  5.717 20.783 Sol
+206.64  5.733 20.767 Sol
+207.63  5.750 20.733 Sol
+208.62  5.783 20.717 Sol
+209.60  5.800 20.700 Sol
+210.59  5.817 20.667 Sol
+211.58  5.833 20.650 Sol
+212.56  5.867 20.617 Sol
+213.55  5.883 20.600 Sol
+214.53  5.900 20.567 Sol
+215.52  5.933 20.550 Sol
+216.51  5.950 20.517 Sol
+217.49  5.967 20.500 Sol
+218.48  6.000 20.467 Sol
+219.47  6.017 20.433 Sol
+220.45  6.033 20.417 Sol
+221.44  6.050 20.383 Sol
+222.42  6.083 20.350 Sol
+223.41  6.100 20.333 Sol
+224.40  6.117 20.300 Sol
+225.38  6.150 20.267 Sol
+226.37  6.167 20.233 Sol
+227.36  6.183 20.200 Sol
+228.34  6.217 20.183 Sol
+229.33  6.233 20.150 Sol
+230.32  6.250 20.117 Sol
+231.30  6.283 20.083 Sol
+232.29  6.300 20.050 Sol
+233.27  6.317 20.017 Sol
+234.26  6.350 19.983 Sol
+235.25  6.367 19.967 Sol
+236.23  6.383 19.933 Sol
+237.22  6.417 19.900 Sol
+238.21  6.433 19.867 Sol
+239.19  6.450 19.833 Sol
+240.18  6.483 19.800 Sol
+241.16  6.500 19.767 Sol
+242.15  6.517 19.733 Sol
+243.14  6.550 19.700 Sol
+244.12  6.567 19.667 Sol
+245.11  6.583 19.633 Sol
+246.10  6.617 19.600 Sol
+247.08  6.633 19.567 Sol
+248.07  6.650 19.533 Sol
+249.05  6.683 19.500 Sol
+250.04  6.700 19.467 Sol
+251.03  6.733 19.433 Sol
+252.01  6.750 19.400 Sol
+253.00  6.767 19.367 Sol
+253.99  6.800 19.333 Sol
+254.97  6.817 19.300 Sol
+255.96  6.833 19.267 Sol
+256.95  6.867 19.217 Sol
+257.93  6.883 19.183 Sol
+258.92  6.900 19.150 Sol
+259.90  6.933 19.117 Sol
+260.89  6.950 19.083 Sol
+261.88  6.967 19.050 Sol
+262.86  7.000 19.017 Sol
+263.85  7.017 18.983 Sol
+264.84  7.033 18.950 Sol
+265.82  7.067 18.917 Sol
+266.81  7.083 18.883 Sol
+267.79  7.100 18.850 Sol
+268.78  7.133 18.817 Sol
+269.77  7.150 18.783 Sol
+270.75  7.183 18.750 Sol
+271.74  7.200 18.717 Sol
+272.73  7.217 18.683 Sol
+273.71  7.250 18.650 Sol
+274.70  7.267 18.617 Sol
+275.69  7.300 18.583 Sol
+276.67  7.317 18.550 Sol
+277.66  7.333 18.517 Sol
+278.64  7.367 18.483 Sol
+279.63  7.383 18.450 Sol
+280.62  7.417 18.417 Sol
+281.60  7.433 18.383 Sol
+282.59  7.467 18.350 Sol
+283.58  7.483 18.317 Sol
+284.56  7.517 18.283 Sol
+285.55  7.533 18.267 Sol
+286.53  7.550 18.233 Sol
+287.52  7.583 18.200 Sol
+288.51  7.600 18.167 Sol
+289.49  7.633 18.133 Sol
+290.48  7.650 18.117 Sol
+291.47  7.683 18.083 Sol
+292.45  7.700 18.050 Sol
+293.44  7.733 18.017 Sol
+294.42  7.750 18.000 Sol
+295.41  7.783 17.967 Sol
+296.40  7.800 17.933 Sol
+297.38  7.833 17.917 Sol
+298.37  7.850 17.883 Sol
+299.36  7.883 17.850 Sol
+300.34  6.900 16.833 Sol
+301.33  6.933 16.800 Sol
+302.32  6.950 16.783 Sol
+303.30  6.983 16.750 Sol
+304.29  7.000 16.733 Sol
+305.27  7.033 16.700 Sol
+306.26  7.067 16.683 Sol
+307.25  7.083 16.667 Sol
+308.23  7.117 16.633 Sol
+309.22  7.133 16.617 Sol
+310.21  7.167 16.600 Sol
+311.19  7.183 16.567 Sol
+312.18  7.217 16.550 Sol
+313.16  7.233 16.533 Sol
+314.15  7.267 16.517 Sol
+315.14  7.283 16.500 Sol
+316.12  7.317 16.483 Sol
+317.11  7.333 16.450 Sol
+318.10  7.367 16.433 Sol
+319.08  7.383 16.433 Sol
+320.07  7.400 16.417 Sol
+321.05  7.433 16.400 Sol
+322.04  7.450 16.383 Sol
+323.03  7.483 16.367 Sol
+324.01  7.500 16.350 Sol
+325.00  7.517 16.350 Sol
+325.99  7.550 16.333 Sol
+326.97  7.567 16.317 Sol
+327.96  7.583 16.317 Sol
+328.95  7.617 16.300 Sol
+329.93  7.633 16.300 Sol
+330.92  7.650 16.283 Sol
+331.90  7.667 16.283 Sol
+332.89  7.683 16.267 Sol
+333.88  7.717 16.267 Sol
+334.86  7.733 16.267 Sol
+335.85  7.750 16.267 Sol
+336.84  7.767 16.250 Sol
+337.82  7.783 16.250 Sol
+338.81  7.800 16.250 Sol
+339.79  7.817 16.250 Sol
+340.78  7.833 16.250 Sol
+341.77  7.850 16.250 Sol
+342.75  7.850 16.250 Sol
+343.74  7.867 16.267 Sol
+344.73  7.883 16.267 Sol
+345.71  7.900 16.267 Sol
+346.70  7.900 16.267 Sol
+347.69  7.917 16.283 Sol
+348.67  7.933 16.283 Sol
+349.66  7.933 16.300 Sol
+350.64  7.950 16.300 Sol
+351.63  7.950 16.317 Sol
+352.62  7.950 16.317 Sol
+353.60  7.967 16.333 Sol
+354.59  7.967 16.350 Sol
+355.58  7.967 16.350 Sol
+356.56  7.983 16.367 Sol
+357.55  7.983 16.383 Sol
+358.53  7.983 16.400 Sol
+359.52  7.983 16.417 Sol
+showpage
+
+%%EOF
