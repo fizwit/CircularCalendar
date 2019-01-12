@@ -33,7 +33,7 @@
 /rad2 { rad1 24.0 sub} def
 /rad3 { rad2 24.0 sub } def
 /radI { rad3 24.0 sub } def   % Inside
-/rad6 { radI 72.0 sub} def
+/rad6 { radI 60.0 sub} def  % length of 'event' line
 /radD { rad3 6.25 add } def   % Day of Month 
 /radW { radI 8.0 add } def   % Day of Week
 /radM { rad6 moonR sub 3.0 sub} def   % Center of Moon
@@ -385,7 +385,8 @@ Dom /dom exch def
      1 setlinewidth } if  
 
   % Lable Day of Month 
-  /BabelSans findfont fontSize scalefont setfont
+  %/BabelSans findfont fontSize scalefont setfont
+  /Helvetica findfont fontSize scalefont setfont
   xMid xc radD mul add yMid yc radD mul add plus90 dom s2 cvs AngleText 
 
   % setgray too white if Sun or Sat
