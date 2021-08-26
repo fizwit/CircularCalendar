@@ -1,22 +1,10 @@
-# Big Calendar
+# Circular Calendar 
 
-Big Calendar is an anual calander that prints at a size of 36 inche square.
-The calendar is circular.  The new year starts at the 12 Noon position.
-The months are aranged in a circle on the outside edge.
+Circular Calendar is an annual calendar that prints at a size of 36 inches square. The calendar is circular with the months arranged on the outside edge with the New Year at the Noon position. The radian lines in the center of the calendar indicate sunrise and sunset for each day. The sunrise sunset times are drawn at half scale and can be read with architect scale. Half inch equals one hour. To read Sunrise time, place the zero of an Architects scale on the innermost circle. Sunrise is the outer edge of the radian, and sunset is the end of the radian line. The sunset sunrise times are to read from the half-scale rule.  Four and a half on the scale is equivalent to 4:30AM.
 
-In the center of the calander radian lines indecate the length of each
-day.  The Lines are drawn in half inch scale. Half Inch equals one hour.
-The Sunrise and Sunset for each day can be read by placing the 
-Zero of an Archetects ruler on the inner most circle. An 18" Architect 
-scale is needed to read sunset times which are past 22:00 hours during 
-the longest days of summer. Sunrise will apear where it should at around 
-4" to 6" inches which can be directly converted to hours and minutes.
-
-Full and new moon are displayed. The Chinese (Lunar) version
-was created because the months align with the Lunar cycle. New Moon times
-are GST which is why they do not perfectly align with the Lunar calander.
-
-The lunar feature is defined as a single PS object.
+An 18" Architect scale is needed to read sunset times for the longest days, which are past 22:00 hours during the days of summer. 
+Full and new moon are displayed. The Chinese (Lunar) version aligns with the Lunar cycle of the new moon. New Moon times are GST which is why they do not perfectly align with the Lunar calendar.
+The lunar feature is a single PS object.
 
 ### How to convert ps to pdf
 To render from source Ghostscript is required.  Use ps2pdf command.
