@@ -1,0 +1,869 @@
+%!PS-Adobe-3.0
+%%Creater: John Dey
+%%CreationDate: Jan 2015
+%%Copyright: 2021 John Dey
+%%+    This program is free software: you can redistribute it and/or modify
+%%+    it under the terms of the GNU General Public License as published by
+%%+    the Free Software Foundation, either version 3 of the License, or
+%%+    (at your option) any later version.
+%%+
+%%+    This program is distributed in the hope that it will be useful,
+%%+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%%+    GNU General Public License for more details.
+%%+
+%%+    You should have received a copy of the GNU General Public License
+%%+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+%%Title: CircularCalendar
+%%Version: 2.0 0
+%%Pages: 1
+%%BoundingBox: 72 72 2522 2522   % 1 in smaller than 36x36
+%%EndComments
+
+%%BeginProlog
+%%BeginProcSet: (John Dey Cir Cal) 2.0 0  
+
+/year {(2022) } def
+/days_year {365.0} def
+/MI   {0} def  % Month Index 0=Jan, 
+/DowI {6} def  % Day Of week Index for 1st day of the year
+               % 0-Sun, 1-Mon, 6=Sa 
+/Dom  {1} def  % Day Of Month 1=1,
+                 % Jan Feb Mar Apr Apr May Jun Jul Aug Sep Oct Nov Dec
+/ChineseMonthlen {[30 29 29 30 29 30 30 29 30 29 30 29]} def
+/chineseNY {31} def % Day number -1 of Chinese New Year. Jan 25 = 24, Feb 5th = 35 
+/inch {72.0 mul } def
+/paperWidth  {36 inch } def
+/paperHeight {36 inch } def
+/imageWidth  {34 inch } def
+ 
+/xMid {paperWidth 2 div } def
+/yMid {paperHeight 2 div } def
+/fontSize 14 def
+/dayArc {360 days_year div} def
+/half_dayArc {dayArc 2.0 div} def
+/EdgeAngle 450 def          % Messy math for edge text
+/moonR {9} def
+/radO {imageWidth 2.0 div } def
+/rad1 { radO 72 sub} def
+/rad2 { rad1 24 sub} def
+/rad3 { rad2 24 sub } def
+/radI { rad3 24 sub } def
+/rad6 { radI 72 sub 10 sub} def  %% 72 is better
+/radD { rad3 7 add } def   % Day of Month 
+/radW { radI 8 add } def   % Day of Week
+/radM { rad6 moonR sub 3 sub} def   % Center of Moon
+
+/city {(Seattle)} def
+/Upper {[(JANUARY) (FEBUARY) (MARCH)(APRIL) (MAY) (JUNE) (JULY) 
+          (AUGUST) (SEPTEMBER) (OCTOBER) (NOVEMBER) (DECEMBER) ]} def
+/months {[(January) (Febuary) (March)(April) (May) (June) (July) 
+          (August) (September) (October) (November) (December) ]} def
+/dayofweek { [(S) (M) (T) (W) (T) (F) (S)]} def
+/monthlen {[31 28 31 30 31 30 31 31 30 31 30 31] } def
+
+/tick {  % create tick mark at x y tick
+  .5 setlinewidth
+  0 setgray
+  6 sub moveto
+  0 12 rlineto
+  gsave stroke grestore
+  -6 -6 rmoveto
+  12 0 rlineto stroke
+} def
+
+/forall { pstack()= forall } bind def
+
+% circletext from Adobe Cook Book (Blue Book)
+% john dey 2015 Dict commands have been removed to make
+% compatable with DSC 3 Prolog 
+
+% ‘‘outsidecircletext’’ takes four arguments: the string to
+% show, the point size of the font to use, the angle around
+% which the text should be centered, and the radius of the
+% circular arc. It assumes that the center of the circle is at (0,0)
+
+%%-------------------
+/outsidecircletext { 
+  /radius exch def
+  /centerangle exch def
+  /ptsize exch def
+  /str exch def
+  /xradius radius ptsize 4 div add def
+    gsave 
+    centerangle str findhalfangle add rotate 
+    str
+      { /charcode exch def
+        ( ) dup 0 charcode put outsideplacechar
+      } forall
+    grestore
+} def
+
+/insidecircletext { 
+  /radius exch def /centerangle exch def
+  /ptsize exch def /str exch def
+
+  /xradius radius ptsize 3 div sub def
+  gsave
+    centerangle str findhalfangle sub rotate
+    str
+      { /charcode exch def
+        () dup 0 charcode put insideplacechar
+      } forall
+    grestore
+} def
+
+%%/circtextdict {16 dict} def
+/findhalfangle { 
+  stringwidth pop 2 div
+  2 xradius mul pi mul div 360 mul
+} def
+
+/outsideplacechar { 
+  /char exch def
+  /halfangle char findhalfangle def
+  gsave
+    halfangle neg rotate
+    radius 0 translate
+    -90 rotate 
+    char stringwidth pop 2 div neg 0 moveto 
+    char show
+  grestore
+  halfangle 2 mul neg rotate
+} def
+
+/insideplacechar { 
+  /char exch def
+  /halfangle char findhalfangle def
+  gsave
+    halfangle rotate
+    radius 0 translate
+    90 rotate
+    char stringwidth pop 2 div neg 0 moveto
+    char show
+    grestore
+    halfangle 2 mul rotate
+} def
+/pi {3.1415923} def
+% End Circle Text
+%-------------------
+
+/AngleText { % x,y,angle,text
+   /text exch def
+   /rot exch def
+   /y exch def
+   /x exch def
+   /shift text stringwidth pop 2 div neg def
+   x y moveto
+   gsave
+    rot rotate
+    shift 0 rmoveto
+    text show
+   grestore
+} def
+
+/radianpoint {  % move to angle and radius
+    /Rangle exch def
+    /Radius exch def
+    xMid Rangle cos Radius mul add
+    yMid Rangle sin Radius mul add moveto
+} def
+
+/radianLine {
+    /Rangle exch def
+    /insideR exch def
+    /outsideR exch def
+    xMid Rangle cos insideR mul add
+    yMid Rangle sin insideR mul add moveto
+    xMid Rangle cos outsideR mul add
+    yMid Rangle sin outsideR mul add lineto stroke
+} def
+/radianline {
+    gsave 
+    0 setgray 
+    %.5 setlinewidth
+    radianLine
+    grestore } def
+/radianlinewhite { 
+  /lweight exch def
+  gsave 
+  1 setgray  % White
+  lweight (norm) eq { 
+      2 setlinecap  
+      1 setlinewidth } if
+  lweight (thick) eq { 
+      1.5 setlinewidth 
+      0 setlinecap   } if
+  radianLine
+  grestore } def
+  
+  /ruler {
+    /hr 7 def
+    .25 setlinewidth
+    gsave  
+    450 77.5 neg rotate
+    1 1 14 { /index exch def 
+            newpath
+            %xMid yMid hr 36.0 mul  0 360 arc  stroke
+            xMid hr 36.0 mul add yMid moveto
+            0 12 rlineto stroke
+            xMid hr 36.0 mul add yMid 1 sub moveto 
+            Hours index get show
+            /hr hr 1 add def
+    } for 
+    grestore
+  } def
+
+  /Sol {
+    /set exch  36.0 mul rad3 exch sub def
+    /rise exch 36.0 mul rad3 exch sub def
+    /day_num exch def
+    /angle 450 day_num dayArc mul half_dayArc sub sub def
+    .25 setlinewidth
+    rise set angle radianLine
+  } def
+
+  % pom Phase of Moon (new full)Draw New Moon (Black)
+  /pom {
+     /phase exch def
+     /text exch def
+     /angle exch def % 450 exch sub def
+     /langle 450 angle sub def
+     angle text event
+     radM langle radianpoint 
+     gsave 
+       currentpoint /y exch def /x exch def
+       .25 setlinewidth
+       newpath
+       x y moonR 0 360 arc stroke  % Full Moon
+       x y moveto
+       phase (New)  eq {currentpoint moonR 0 360 arc eofill} if
+       langle rotate
+       phase (First) eq {currentpoint moonR 90 270 arc fill } if
+       phase (Last)  eq {currentpoint moonR 270 90 arc fill } if
+        grestore
+  } bind def
+
+  /event {  % place text and radian line on Calander 
+    /text exch def
+    /angle exch def
+    gsave
+    /BabelSans findfont 8 scalefont setfont
+    .25 setlinewidth
+    /langle 450 angle sub def
+    radI rad6 langle radianLine 
+    angle 180 gt {rad6 text stringwidth pop add langle radianpoint 
+                  270 angle sub rotate 0 1 rmoveto text show }
+                 {rad6 langle radianpoint  % moveto
+                  langle rotate 0 1 rmoveto text show } ifelse
+    grestore
+  } bind def
+  
+  /underevent {  % place text Under radian line on Calander 
+    /text exch def
+    /angle exch def
+    gsave
+    /BabelSans findfont 8 scalefont setfont
+    .25 setlinewidth
+    /langle 450 angle sub def
+    radI rad6 langle radianLine 
+    angle 180 gt % left half
+                 {rad6 text stringwidth pop add langle radianpoint 
+                  270 angle sub rotate 0 1 rmoveto text show }
+                 % right side
+                 {rad6 langle radianpoint  % moveto
+                  langle rotate 0 -7 rmoveto text show } ifelse
+
+
+    grestore
+  } bind def
+
+
+      %Left side black
+      /firstMoon {   
+         /text exch def
+         /angle exch 450 exch sub def
+         rad3 rad6 angle radianline 
+         rad6 angle radianpoint 
+         gsave 
+         /BabelSans findfont 8 scalefont setfont
+           angle rotate 0 1 rmoveto text show grestore
+         radM angle radianpoint 
+         gsave angle rotate 
+         currentpoint newpath moonR 90 270 arc fill 
+         grestore
+      } bind def
+
+%%EndProcSet
+%%EndProlog
+
+%%BeginSetup
+%%IncludeResources: font Helvetica 
+%%IncludeResources: font Helvetica-Bold
+%  [36 36] PageSize
+%setpagedevice 
+%%EndSetup
+
+%%Page: 1 1
+%  Year in Center
+/HelveticaLTPro-Bold findfont 278 scalefont setfont
+year stringwidth pop /half exch 2.0 div def
+xMid half sub yMid moveto year show 
+xMid half sub 7.7 add yMid 9 sub moveto
+/Helvetica findfont 8 scalefont setfont
+(Designed by John Dey) show
+2450 72 moveto city show
+%xMid yMid tick
+newpath
+
+
+% Place Month Text 
+% Arc Lenght calculation: angle = ArcLen * (360.0/pi*D)
+/CenterAngle 450 dayArc 2.0 div sub def % center of box, center for text 
+/HelveticaLTPro-Bold findfont 68 scalefont setfont
+/outsideMonth rad1 22 add def  %% radus for Month type
+/insideMonth rad1 70 add def  %% radus for Month type
+/monthAngle 435 def
+/ledge EdgeAngle def
+/doy 0 def
+gsave   % Write Names of Months
+  xMid yMid translate
+  0 1 11 { /index exch def 
+    months index get
+    68 monthAngle outsideMonth outsidecircletext 
+    /monthAngle monthAngle 30 sub def
+  } for
+grestore
+
+%% Loop for every Day 
+%  Draw the Gray boxes first!  (Day of month)
+%  Draw the Black boxes First! for Sat/Sun
+/edge EdgeAngle def % Messy math for edge text
+/dowI DowI def
+/mI MI def
+/dom Dom def
+0 1 364 { 
+  /doy exch def
+  doy 2 mod 1 eq 
+   {xMid yMid rad2 edge edge dayArc sub arcn
+    xMid yMid rad3 edge dayArc sub edge arc 
+    .85 setgray closepath fill 0 setgray} if
+   % reverse Text Boxes for Sat Sun 
+   newpath
+   0 dowI 7 mod eq 6 dowI 7 mod eq or
+    {xMid yMid rad3 edge edge dayArc sub arcn
+     xMid yMid radI edge dayArc sub edge arc
+     0 setgray closepath fill } if
+     % Move to next day
+     /edge edge dayArc sub def
+     /dowI dowI 1 add def   % index for dayofweek
+     /dom  dom  1 add def   % day of month
+     dom monthlen mI get gt { /dom 1 def /mI mI 1 add def} if
+} for
+
+newpath
+% Outer Arcs for Months, Boxes, Days of Month, Days of Week
+2 setlinewidth  %% Heavest Line Used Only Once!
+xMid yMid radO 24 add 0 360 arc stroke    % Outer
+xMid yMid rad1 0 360 arc  stroke
+xMid yMid radI 0 360 arc  stroke   % Inner
+1 setlinewidth
+xMid yMid rad2 0 360 arc  stroke
+xMid yMid rad3 0 360 arc  stroke
+
+/edge EdgeAngle def          % Messy math for edge text
+DowI /dowI exch def
+MI /mI exch def
+Dom /dom exch def
+/s2 2 string def  % string for Day of Month
+0 1 days_year 1 sub { 
+  /doy exch def
+  % define angle for each day
+  /xc CenterAngle cos def  
+  /yc CenterAngle sin def
+  /plus90 CenterAngle 270 add def
+
+  % Draw Lines between days
+  rad1 radI edge radianline 
+  % draw lines between Weeks
+  % draw lines between Months, Use heavier line 
+  1 dom eq { 
+     1.5 setlinewidth radO 24 add radI edge radianLine
+     1 setlinewidth } if  
+
+  % Lable Day of Month 
+  /BabelSans findfont fontSize scalefont setfont
+  xMid xc radD mul add yMid yc radD mul add plus90 dom s2 cvs AngleText 
+
+  % Setgray to White if Sat Sun 
+  newpath
+  0 dowI 7 mod eq 6 dowI 7 mod eq or 
+  {1 setgray } if  
+
+  % draw white line btw Sat Sun
+  0 dowI 7 mod eq { radI .5 sub rad3 edge (norm) radianlinewhite } if
+  %% draw heavy line btw Sat Sun AND btw Months 
+  0 dowI 7 mod eq  1 dom eq and 
+      { radI 1 sub rad3 .5 add edge (thick) radianlinewhite } if 
+  
+  % Draw Day of Week - reset color to Black
+  /BabelSans findfont 12 scalefont setfont
+  xMid xc radW mul add yMid yc radW mul add plus90 
+    dayofweek dowI 7 mod get AngleText
+  0 setgray
+
+  % Move to next day
+  /CenterAngle CenterAngle dayArc sub def
+  /edge edge dayArc sub def
+  /dowI dowI 1 add def   % index for dayofweek
+  /dom  dom  1 add def   % day of month
+  dom monthlen mI get gt { /dom 1 def /mI mI 1 add def} if
+} for 
+1 setlinewidth
+
+/Lunar {
+  /edge EdgeAngle dayArc chineseNY mul sub def
+  /CenterAngle edge dayArc 2.0 div sub def % center of box, center for text
+  /dom 1 def
+  /doy 1 def
+  /mI 0 def
+  /radC rad2 4 add def
+  354 { 
+    /xc CenterAngle cos def  /yc CenterAngle sin def
+    /plus90 CenterAngle 270 add def
+    % Lable Day of Month 
+    /Helvetica findfont fontSize scalefont setfont
+    xMid xc radC mul add yMid yc radC mul add plus90 dom s2 cvs AngleText 
+
+    % Move to next day
+    /CenterAngle CenterAngle dayArc sub def
+    /edge edge dayArc sub def
+    /dom  dom  1 add def   % day of month
+    dom ChineseMonthlen mI get gt { /dom 1 def /mI mI 1 add def} if
+  } repeat 
+} def
+%% Lunar
+
+ 77.29 (Spring Equinox 08:33) event %% Sun Mar 20 08:33:21 2022 
+169.15 (Summer Soltice) event %% Tue Jun 21 02:13:56 2022 
+261.14 (Fall Equinox 18:03) event %% Thu Sep 22 18:03:33 2022 
+349.73 (Winter Soltice 13:48) event %% Wed Dec 21 13:48:00 2022 
+  1.43 (New Moon 10:33) (New) pom %% Sun Jan  2 10:33:29 2022Z
+  8.31 (First Quarter 10:11) (First) pom %% Sun Jan  9 10:11:15 2022Z
+ 16.44 (Full Moon 15:48) (Full) pom %% Mon Jan 17 15:48:25 2022Z
+ 23.91 (Last Quarter 05:40) (Last) pom %% Tue Jan 25 05:40:54 2022Z
+ 30.50 (New Moon 21:45) (New) pom %% Mon Jan 31 21:45:59 2022Z
+ 37.72 (First Quarter 05:50) (First) pom %% Tue Feb  8 05:50:06 2022Z
+ 45.74 (Full Moon 08:56) (Full) pom %% Wed Feb 16 08:56:29 2022Z
+ 52.88 (Last Quarter 14:32) (Last) pom %% Wed Feb 23 14:32:25 2022Z
+ 59.58 (New Moon 09:34) (New) pom %% Wed Mar  2 09:34:44 2022Z
+ 67.18 (First Quarter 02:45) (First) pom %% Thu Mar 10 02:45:22 2022Z
+ 74.97 (Full Moon 00:17) (Full) pom %% Fri Mar 18 00:17:32 2022Z
+ 81.82 (Last Quarter 22:37) (Last) pom %% Thu Mar 24 22:37:15 2022Z
+ 88.76 (New Moon 23:24) (New) pom %% Thu Mar 31 23:24:22 2022Z
+ 96.66 (First Quarter 23:47) (First) pom %% Fri Apr  8 23:47:35 2022Z
+104.06 (Full Moon 11:55) (Full) pom %% Sat Apr 16 11:55:00 2022Z
+110.67 (Last Quarter 04:56) (Last) pom %% Sat Apr 23 04:56:19 2022Z
+117.93 (New Moon 13:28) (New) pom %% Sat Apr 30 13:28:03 2022Z
+125.98 (First Quarter 17:21) (First) pom %% Sun May  8 17:21:21 2022Z
+133.05 (Full Moon 21:14) (Full) pom %% Sun May 15 21:14:07 2022Z
+139.56 (Last Quarter 11:43) (Last) pom %% Sun May 22 11:43:03 2022Z
+147.15 (New Moon 04:30) (New) pom %% Mon May 30 04:30:14 2022Z
+155.17 (First Quarter 07:48) (First) pom %% Tue Jun  7 07:48:27 2022Z
+161.96 (Full Moon 04:51) (Full) pom %% Tue Jun 14 04:51:43 2022Z
+168.51 (Last Quarter 20:10) (Last) pom %% Mon Jun 20 20:10:46 2022Z
+176.39 (New Moon 19:52) (New) pom %% Tue Jun 28 19:52:13 2022Z
+184.25 (First Quarter 19:14) (First) pom %% Wed Jul  6 19:14:06 2022Z
+190.84 (Full Moon 11:37) (Full) pom %% Wed Jul 13 11:37:35 2022Z
+197.56 (Last Quarter 07:18) (Last) pom %% Wed Jul 20 07:18:34 2022Z
+205.60 (New Moon 10:54) (New) pom %% Thu Jul 28 10:54:58 2022Z
+213.21 (First Quarter 04:06) (First) pom %% Fri Aug  5 04:06:30 2022Z
+219.73 (Full Moon 18:35) (Full) pom %% Thu Aug 11 18:35:41 2022Z
+226.76 (Last Quarter 21:36) (Last) pom %% Thu Aug 18 21:36:03 2022Z
+234.79 (New Moon 01:17) (New) pom %% Sat Aug 27 01:17:04 2022Z
+242.11 (First Quarter 11:07) (First) pom %% Sat Sep  3 11:07:42 2022Z
+248.67 (Full Moon 02:59) (Full) pom %% Sat Sep 10 02:59:00 2022Z
+256.07 (Last Quarter 14:51) (Last) pom %% Sat Sep 17 14:51:57 2022Z
+263.96 (New Moon 14:54) (New) pom %% Sun Sep 25 14:54:31 2022Z
+270.96 (First Quarter 17:14) (First) pom %% Sun Oct  2 17:14:00 2022Z
+277.73 (Full Moon 13:54) (Full) pom %% Sun Oct  9 13:54:56 2022Z
+285.47 (Last Quarter 10:15) (Last) pom %% Mon Oct 17 10:15:04 2022Z
+293.09 (New Moon 03:48) (New) pom %% Tue Oct 25 03:48:40 2022Z
+299.83 (First Quarter 23:37) (First) pom %% Mon Oct 31 23:37:04 2022Z
+306.87 (Full Moon 03:02) (Full) pom %% Tue Nov  8 03:02:07 2022Z
+314.86 (Last Quarter 05:27) (Last) pom %% Wed Nov 16 05:27:01 2022Z
+322.16 (New Moon 14:57) (New) pom %% Wed Nov 23 14:57:12 2022Z
+328.71 (First Quarter 06:36) (First) pom %% Wed Nov 30 06:36:30 2022Z
+336.18 (Full Moon 20:08) (Full) pom %% Wed Dec  7 20:08:09 2022Z
+344.26 (Last Quarter 00:56) (Last) pom %% Fri Dec 16 00:56:03 2022Z
+351.22 (New Moon 02:16) (New) pom %% Fri Dec 23 02:16:51 2022Z
+357.76 (First Quarter 17:20) (First) pom %% Thu Dec 29 17:20:30 2022Z
+1 7.9525 16.4844 Sol %% Sun Rise/Set: Jan-01 07:57:09 16:29:04 PST
+2 7.9517 16.5011 Sol %% Sun Rise/Set: Jan-02 07:57:06 16:30:04 PST
+3 7.9503 16.5181 Sol %% Sun Rise/Set: Jan-03 07:57:01 16:31:05 PST
+4 7.9481 16.5358 Sol %% Sun Rise/Set: Jan-04 07:56:53 16:32:09 PST
+5 7.9450 16.5542 Sol %% Sun Rise/Set: Jan-05 07:56:42 16:33:15 PST
+6 7.9411 16.5728 Sol %% Sun Rise/Set: Jan-06 07:56:28 16:34:22 PST
+7 7.9364 16.5922 Sol %% Sun Rise/Set: Jan-07 07:56:11 16:35:32 PST
+8 7.9308 16.6119 Sol %% Sun Rise/Set: Jan-08 07:55:51 16:36:43 PST
+9 7.9247 16.6322 Sol %% Sun Rise/Set: Jan-09 07:55:29 16:37:56 PST
+10 7.9178 16.6528 Sol %% Sun Rise/Set: Jan-10 07:55:04 16:39:10 PST
+11 7.9100 16.6742 Sol %% Sun Rise/Set: Jan-11 07:54:36 16:40:27 PST
+12 7.9014 16.6956 Sol %% Sun Rise/Set: Jan-12 07:54:05 16:41:44 PST
+13 7.8922 16.7175 Sol %% Sun Rise/Set: Jan-13 07:53:32 16:43:03 PST
+14 7.8822 16.7397 Sol %% Sun Rise/Set: Jan-14 07:52:56 16:44:23 PST
+15 7.8714 16.7625 Sol %% Sun Rise/Set: Jan-15 07:52:17 16:45:45 PST
+16 7.8597 16.7856 Sol %% Sun Rise/Set: Jan-16 07:51:35 16:47:08 PST
+17 7.8478 16.8089 Sol %% Sun Rise/Set: Jan-17 07:50:52 16:48:32 PST
+18 7.8347 16.8325 Sol %% Sun Rise/Set: Jan-18 07:50:05 16:49:57 PST
+19 7.8211 16.8564 Sol %% Sun Rise/Set: Jan-19 07:49:16 16:51:23 PST
+20 7.8069 16.8806 Sol %% Sun Rise/Set: Jan-20 07:48:25 16:52:50 PST
+21 7.7919 16.9050 Sol %% Sun Rise/Set: Jan-21 07:47:31 16:54:18 PST
+22 7.7764 16.9297 Sol %% Sun Rise/Set: Jan-22 07:46:35 16:55:47 PST
+23 7.7603 16.9547 Sol %% Sun Rise/Set: Jan-23 07:45:37 16:57:17 PST
+24 7.7433 16.9797 Sol %% Sun Rise/Set: Jan-24 07:44:36 16:58:47 PST
+25 7.7258 17.0050 Sol %% Sun Rise/Set: Jan-25 07:43:33 17:00:18 PST
+26 7.7078 17.0303 Sol %% Sun Rise/Set: Jan-26 07:42:28 17:01:49 PST
+27 7.6892 17.0561 Sol %% Sun Rise/Set: Jan-27 07:41:21 17:03:22 PST
+28 7.6700 17.0817 Sol %% Sun Rise/Set: Jan-28 07:40:12 17:04:54 PST
+29 7.6500 17.1075 Sol %% Sun Rise/Set: Jan-29 07:39:00 17:06:27 PST
+30 7.6297 17.1336 Sol %% Sun Rise/Set: Jan-30 07:37:47 17:08:01 PST
+31 7.6089 17.1597 Sol %% Sun Rise/Set: Jan-31 07:36:32 17:09:35 PST
+32 7.5875 17.1858 Sol %% Sun Rise/Set: Feb-01 07:35:15 17:11:09 PST
+33 7.5653 17.2119 Sol %% Sun Rise/Set: Feb-02 07:33:55 17:12:43 PST
+34 7.5431 17.2381 Sol %% Sun Rise/Set: Feb-03 07:32:35 17:14:17 PST
+35 7.5200 17.2644 Sol %% Sun Rise/Set: Feb-04 07:31:12 17:15:52 PST
+36 7.4964 17.2908 Sol %% Sun Rise/Set: Feb-05 07:29:47 17:17:27 PST
+37 7.4725 17.3172 Sol %% Sun Rise/Set: Feb-06 07:28:21 17:19:02 PST
+38 7.4481 17.3433 Sol %% Sun Rise/Set: Feb-07 07:26:53 17:20:36 PST
+39 7.4233 17.3697 Sol %% Sun Rise/Set: Feb-08 07:25:24 17:22:11 PST
+40 7.3981 17.3961 Sol %% Sun Rise/Set: Feb-09 07:23:53 17:23:46 PST
+41 7.3722 17.4222 Sol %% Sun Rise/Set: Feb-10 07:22:20 17:25:20 PST
+42 7.3461 17.4486 Sol %% Sun Rise/Set: Feb-11 07:20:46 17:26:55 PST
+43 7.3197 17.4747 Sol %% Sun Rise/Set: Feb-12 07:19:11 17:28:29 PST
+44 7.2928 17.5011 Sol %% Sun Rise/Set: Feb-13 07:17:34 17:30:04 PST
+45 7.2656 17.5272 Sol %% Sun Rise/Set: Feb-14 07:15:56 17:31:38 PST
+46 7.2378 17.5533 Sol %% Sun Rise/Set: Feb-15 07:14:16 17:33:12 PST
+47 7.2100 17.5792 Sol %% Sun Rise/Set: Feb-16 07:12:36 17:34:45 PST
+48 7.1817 17.6053 Sol %% Sun Rise/Set: Feb-17 07:10:54 17:36:19 PST
+49 7.1528 17.6311 Sol %% Sun Rise/Set: Feb-18 07:09:10 17:37:52 PST
+50 7.1239 17.6569 Sol %% Sun Rise/Set: Feb-19 07:07:26 17:39:25 PST
+51 7.0947 17.6828 Sol %% Sun Rise/Set: Feb-20 07:05:41 17:40:58 PST
+52 7.0653 17.7086 Sol %% Sun Rise/Set: Feb-21 07:03:55 17:42:31 PST
+53 7.0353 17.7344 Sol %% Sun Rise/Set: Feb-22 07:02:07 17:44:04 PST
+54 7.0053 17.7600 Sol %% Sun Rise/Set: Feb-23 07:00:19 17:45:36 PST
+55 6.9747 17.7856 Sol %% Sun Rise/Set: Feb-24 06:58:29 17:47:08 PST
+56 6.9442 17.8111 Sol %% Sun Rise/Set: Feb-25 06:56:39 17:48:40 PST
+57 6.9133 17.8364 Sol %% Sun Rise/Set: Feb-26 06:54:48 17:50:11 PST
+58 6.8822 17.8617 Sol %% Sun Rise/Set: Feb-27 06:52:56 17:51:42 PST
+59 6.8511 17.8869 Sol %% Sun Rise/Set: Feb-28 06:51:04 17:53:13 PST
+60 6.8194 17.9122 Sol %% Sun Rise/Set: Mar-01 06:49:10 17:54:44 PST
+61 6.7878 17.9372 Sol %% Sun Rise/Set: Mar-02 06:47:16 17:56:14 PST
+62 6.7558 17.9625 Sol %% Sun Rise/Set: Mar-03 06:45:21 17:57:45 PST
+63 6.7239 17.9872 Sol %% Sun Rise/Set: Mar-04 06:43:26 17:59:14 PST
+64 6.6917 18.0122 Sol %% Sun Rise/Set: Mar-05 06:41:30 18:00:44 PST
+65 6.6592 18.0369 Sol %% Sun Rise/Set: Mar-06 06:39:33 18:02:13 PST
+66 6.6267 18.0617 Sol %% Sun Rise/Set: Mar-07 06:37:36 18:03:42 PST
+67 6.5939 18.0864 Sol %% Sun Rise/Set: Mar-08 06:35:38 18:05:11 PST
+68 6.5611 18.1111 Sol %% Sun Rise/Set: Mar-09 06:33:40 18:06:40 PST
+69 6.5281 18.1356 Sol %% Sun Rise/Set: Mar-10 06:31:41 18:08:08 PST
+70 6.4950 18.1600 Sol %% Sun Rise/Set: Mar-11 06:29:42 18:09:36 PST
+71 6.4619 18.1844 Sol %% Sun Rise/Set: Mar-12 06:27:43 18:11:04 PST
+72 7.4286 19.2086 Sol %% Sun Rise/Set: Mar-13 07:25:43 19:12:31 PST
+73 7.3950 19.2328 Sol %% Sun Rise/Set: Mar-14 07:23:42 19:13:58 PST
+74 7.3617 19.2569 Sol %% Sun Rise/Set: Mar-15 07:21:42 19:15:25 PST
+75 7.3281 19.2811 Sol %% Sun Rise/Set: Mar-16 07:19:41 19:16:52 PST
+76 7.2944 19.3053 Sol %% Sun Rise/Set: Mar-17 07:17:40 19:18:19 PST
+77 7.2608 19.3292 Sol %% Sun Rise/Set: Mar-18 07:15:39 19:19:45 PST
+78 7.2272 19.3533 Sol %% Sun Rise/Set: Mar-19 07:13:38 19:21:12 PST
+79 7.1933 19.3772 Sol %% Sun Rise/Set: Mar-20 07:11:36 19:22:38 PST
+80 7.1597 19.4011 Sol %% Sun Rise/Set: Mar-21 07:09:35 19:24:04 PST
+81 7.1258 19.4250 Sol %% Sun Rise/Set: Mar-22 07:07:33 19:25:30 PST
+82 7.0922 19.4486 Sol %% Sun Rise/Set: Mar-23 07:05:32 19:26:55 PST
+83 7.0583 19.4725 Sol %% Sun Rise/Set: Mar-24 07:03:30 19:28:21 PST
+84 7.0244 19.4964 Sol %% Sun Rise/Set: Mar-25 07:01:28 19:29:47 PST
+85 6.9908 19.5200 Sol %% Sun Rise/Set: Mar-26 06:59:27 19:31:12 PST
+86 6.9569 19.5439 Sol %% Sun Rise/Set: Mar-27 06:57:25 19:32:38 PST
+87 6.9233 19.5675 Sol %% Sun Rise/Set: Mar-28 06:55:24 19:34:03 PST
+88 6.8897 19.5914 Sol %% Sun Rise/Set: Mar-29 06:53:23 19:35:29 PST
+89 6.8561 19.6150 Sol %% Sun Rise/Set: Mar-30 06:51:22 19:36:54 PST
+90 6.8225 19.6386 Sol %% Sun Rise/Set: Mar-31 06:49:21 19:38:19 PST
+91 6.7892 19.6625 Sol %% Sun Rise/Set: Apr-01 06:47:21 19:39:45 PST
+92 6.7558 19.6861 Sol %% Sun Rise/Set: Apr-02 06:45:21 19:41:10 PST
+93 6.7225 19.7097 Sol %% Sun Rise/Set: Apr-03 06:43:21 19:42:35 PST
+94 6.6892 19.7333 Sol %% Sun Rise/Set: Apr-04 06:41:21 19:44:00 PST
+95 6.6561 19.7569 Sol %% Sun Rise/Set: Apr-05 06:39:22 19:45:25 PST
+96 6.6231 19.7806 Sol %% Sun Rise/Set: Apr-06 06:37:23 19:46:50 PST
+97 6.5900 19.8042 Sol %% Sun Rise/Set: Apr-07 06:35:24 19:48:15 PST
+98 6.5572 19.8278 Sol %% Sun Rise/Set: Apr-08 06:33:26 19:49:40 PST
+99 6.5247 19.8514 Sol %% Sun Rise/Set: Apr-09 06:31:29 19:51:05 PST
+100 6.4922 19.8750 Sol %% Sun Rise/Set: Apr-10 06:29:32 19:52:30 PST
+101 6.4600 19.8986 Sol %% Sun Rise/Set: Apr-11 06:27:36 19:53:55 PST
+102 6.4278 19.9222 Sol %% Sun Rise/Set: Apr-12 06:25:40 19:55:20 PST
+103 6.3956 19.9458 Sol %% Sun Rise/Set: Apr-13 06:23:44 19:56:45 PST
+104 6.3639 19.9694 Sol %% Sun Rise/Set: Apr-14 06:21:50 19:58:10 PST
+105 6.3322 19.9928 Sol %% Sun Rise/Set: Apr-15 06:19:56 19:59:34 PST
+106 6.3008 20.0164 Sol %% Sun Rise/Set: Apr-16 06:18:03 20:00:59 PST
+107 6.2697 20.0400 Sol %% Sun Rise/Set: Apr-17 06:16:11 20:02:24 PST
+108 6.2386 20.0636 Sol %% Sun Rise/Set: Apr-18 06:14:19 20:03:49 PST
+109 6.2078 20.0869 Sol %% Sun Rise/Set: Apr-19 06:12:28 20:05:13 PST
+110 6.1772 20.1106 Sol %% Sun Rise/Set: Apr-20 06:10:38 20:06:38 PST
+111 6.1469 20.1339 Sol %% Sun Rise/Set: Apr-21 06:08:49 20:08:02 PST
+112 6.1169 20.1575 Sol %% Sun Rise/Set: Apr-22 06:07:01 20:09:27 PST
+113 6.0872 20.1811 Sol %% Sun Rise/Set: Apr-23 06:05:14 20:10:52 PST
+114 6.0578 20.2044 Sol %% Sun Rise/Set: Apr-24 06:03:28 20:12:16 PST
+115 6.0286 20.2278 Sol %% Sun Rise/Set: Apr-25 06:01:43 20:13:40 PST
+116 6.0000 20.2514 Sol %% Sun Rise/Set: Apr-26 06:00:00 20:15:05 PST
+117 5.9714 20.2747 Sol %% Sun Rise/Set: Apr-27 05:58:17 20:16:29 PST
+118 5.9431 20.2981 Sol %% Sun Rise/Set: Apr-28 05:56:35 20:17:53 PST
+119 5.9153 20.3211 Sol %% Sun Rise/Set: Apr-29 05:54:55 20:19:16 PST
+120 5.8878 20.3444 Sol %% Sun Rise/Set: Apr-30 05:53:16 20:20:40 PST
+121 5.8606 20.3675 Sol %% Sun Rise/Set: May-01 05:51:38 20:22:03 PST
+122 5.8339 20.3906 Sol %% Sun Rise/Set: May-02 05:50:02 20:23:26 PST
+123 5.8075 20.4136 Sol %% Sun Rise/Set: May-03 05:48:27 20:24:49 PST
+124 5.7814 20.4367 Sol %% Sun Rise/Set: May-04 05:46:53 20:26:12 PST
+125 5.7558 20.4594 Sol %% Sun Rise/Set: May-05 05:45:21 20:27:34 PST
+126 5.7306 20.4819 Sol %% Sun Rise/Set: May-06 05:43:50 20:28:55 PST
+127 5.7056 20.5047 Sol %% Sun Rise/Set: May-07 05:42:20 20:30:17 PST
+128 5.6814 20.5269 Sol %% Sun Rise/Set: May-08 05:40:53 20:31:37 PST
+129 5.6572 20.5494 Sol %% Sun Rise/Set: May-09 05:39:26 20:32:58 PST
+130 5.6339 20.5714 Sol %% Sun Rise/Set: May-10 05:38:02 20:34:17 PST
+131 5.6108 20.5933 Sol %% Sun Rise/Set: May-11 05:36:39 20:35:36 PST
+132 5.5883 20.6153 Sol %% Sun Rise/Set: May-12 05:35:18 20:36:55 PST
+133 5.5661 20.6369 Sol %% Sun Rise/Set: May-13 05:33:58 20:38:13 PST
+134 5.5447 20.6583 Sol %% Sun Rise/Set: May-14 05:32:41 20:39:30 PST
+135 5.5236 20.6794 Sol %% Sun Rise/Set: May-15 05:31:25 20:40:46 PST
+136 5.5031 20.7003 Sol %% Sun Rise/Set: May-16 05:30:11 20:42:01 PST
+137 5.4831 20.7211 Sol %% Sun Rise/Set: May-17 05:28:59 20:43:16 PST
+138 5.4636 20.7417 Sol %% Sun Rise/Set: May-18 05:27:49 20:44:30 PST
+139 5.4447 20.7619 Sol %% Sun Rise/Set: May-19 05:26:41 20:45:43 PST
+140 5.4264 20.7819 Sol %% Sun Rise/Set: May-20 05:25:35 20:46:55 PST
+141 5.4086 20.8017 Sol %% Sun Rise/Set: May-21 05:24:31 20:48:06 PST
+142 5.3917 20.8211 Sol %% Sun Rise/Set: May-22 05:23:30 20:49:16 PST
+143 5.3750 20.8400 Sol %% Sun Rise/Set: May-23 05:22:30 20:50:24 PST
+144 5.3592 20.8589 Sol %% Sun Rise/Set: May-24 05:21:33 20:51:32 PST
+145 5.3439 20.8772 Sol %% Sun Rise/Set: May-25 05:20:38 20:52:38 PST
+146 5.3292 20.8953 Sol %% Sun Rise/Set: May-26 05:19:45 20:53:43 PST
+147 5.3150 20.9131 Sol %% Sun Rise/Set: May-27 05:18:54 20:54:47 PST
+148 5.3017 20.9303 Sol %% Sun Rise/Set: May-28 05:18:06 20:55:49 PST
+149 5.2889 20.9472 Sol %% Sun Rise/Set: May-29 05:17:20 20:56:50 PST
+150 5.2767 20.9636 Sol %% Sun Rise/Set: May-30 05:16:36 20:57:49 PST
+151 5.2653 20.9797 Sol %% Sun Rise/Set: May-31 05:15:55 20:58:47 PST
+152 5.2547 20.9953 Sol %% Sun Rise/Set: Jun-01 05:15:17 20:59:43 PST
+153 5.2447 21.0103 Sol %% Sun Rise/Set: Jun-02 05:14:41 21:00:37 PST
+154 5.2353 21.0247 Sol %% Sun Rise/Set: Jun-03 05:14:07 21:01:29 PST
+155 5.2267 21.0389 Sol %% Sun Rise/Set: Jun-04 05:13:36 21:02:20 PST
+156 5.2186 21.0522 Sol %% Sun Rise/Set: Jun-05 05:13:07 21:03:08 PST
+157 5.2114 21.0653 Sol %% Sun Rise/Set: Jun-06 05:12:41 21:03:55 PST
+158 5.2047 21.0778 Sol %% Sun Rise/Set: Jun-07 05:12:17 21:04:40 PST
+159 5.1989 21.0894 Sol %% Sun Rise/Set: Jun-08 05:11:56 21:05:22 PST
+160 5.1936 21.1008 Sol %% Sun Rise/Set: Jun-09 05:11:37 21:06:03 PST
+161 5.1892 21.1114 Sol %% Sun Rise/Set: Jun-10 05:11:21 21:06:41 PST
+162 5.1856 21.1214 Sol %% Sun Rise/Set: Jun-11 05:11:08 21:07:17 PST
+163 5.1825 21.1308 Sol %% Sun Rise/Set: Jun-12 05:10:57 21:07:51 PST
+164 5.1803 21.1397 Sol %% Sun Rise/Set: Jun-13 05:10:49 21:08:23 PST
+165 5.1786 21.1478 Sol %% Sun Rise/Set: Jun-14 05:10:43 21:08:52 PST
+166 5.1778 21.1553 Sol %% Sun Rise/Set: Jun-15 05:10:40 21:09:19 PST
+167 5.1775 21.1622 Sol %% Sun Rise/Set: Jun-16 05:10:39 21:09:44 PST
+168 5.1781 21.1683 Sol %% Sun Rise/Set: Jun-17 05:10:41 21:10:06 PST
+169 5.1794 21.1739 Sol %% Sun Rise/Set: Jun-18 05:10:46 21:10:26 PST
+170 5.1814 21.1786 Sol %% Sun Rise/Set: Jun-19 05:10:53 21:10:43 PST
+171 5.1839 21.1828 Sol %% Sun Rise/Set: Jun-20 05:11:02 21:10:58 PST
+172 5.1872 21.1861 Sol %% Sun Rise/Set: Jun-21 05:11:14 21:11:10 PST
+173 5.1914 21.1889 Sol %% Sun Rise/Set: Jun-22 05:11:29 21:11:20 PST
+174 5.1961 21.1908 Sol %% Sun Rise/Set: Jun-23 05:11:46 21:11:27 PST
+175 5.2017 21.1922 Sol %% Sun Rise/Set: Jun-24 05:12:06 21:11:32 PST
+176 5.2078 21.1928 Sol %% Sun Rise/Set: Jun-25 05:12:28 21:11:34 PST
+177 5.2144 21.1928 Sol %% Sun Rise/Set: Jun-26 05:12:52 21:11:34 PST
+178 5.2217 21.1917 Sol %% Sun Rise/Set: Jun-27 05:13:18 21:11:30 PST
+179 5.2297 21.1903 Sol %% Sun Rise/Set: Jun-28 05:13:47 21:11:25 PST
+180 5.2383 21.1878 Sol %% Sun Rise/Set: Jun-29 05:14:18 21:11:16 PST
+181 5.2478 21.1847 Sol %% Sun Rise/Set: Jun-30 05:14:52 21:11:05 PST
+182 5.2575 21.1811 Sol %% Sun Rise/Set: Jul-01 05:15:27 21:10:52 PST
+183 5.2681 21.1764 Sol %% Sun Rise/Set: Jul-02 05:16:05 21:10:35 PST
+184 5.2789 21.1711 Sol %% Sun Rise/Set: Jul-03 05:16:44 21:10:16 PST
+185 5.2906 21.1653 Sol %% Sun Rise/Set: Jul-04 05:17:26 21:09:55 PST
+186 5.3028 21.1583 Sol %% Sun Rise/Set: Jul-05 05:18:10 21:09:30 PST
+187 5.3153 21.1511 Sol %% Sun Rise/Set: Jul-06 05:18:55 21:09:04 PST
+188 5.3283 21.1428 Sol %% Sun Rise/Set: Jul-07 05:19:42 21:08:34 PST
+189 5.3419 21.1339 Sol %% Sun Rise/Set: Jul-08 05:20:31 21:08:02 PST
+190 5.3561 21.1244 Sol %% Sun Rise/Set: Jul-09 05:21:22 21:07:28 PST
+191 5.3706 21.1142 Sol %% Sun Rise/Set: Jul-10 05:22:14 21:06:51 PST
+192 5.3858 21.1031 Sol %% Sun Rise/Set: Jul-11 05:23:09 21:06:11 PST
+193 5.4011 21.0914 Sol %% Sun Rise/Set: Jul-12 05:24:04 21:05:29 PST
+194 5.4169 21.0792 Sol %% Sun Rise/Set: Jul-13 05:25:01 21:04:45 PST
+195 5.4333 21.0661 Sol %% Sun Rise/Set: Jul-14 05:26:00 21:03:58 PST
+196 5.4500 21.0525 Sol %% Sun Rise/Set: Jul-15 05:27:00 21:03:09 PST
+197 5.4669 21.0381 Sol %% Sun Rise/Set: Jul-16 05:28:01 21:02:17 PST
+198 5.4844 21.0233 Sol %% Sun Rise/Set: Jul-17 05:29:04 21:01:24 PST
+199 5.5022 21.0075 Sol %% Sun Rise/Set: Jul-18 05:30:08 21:00:27 PST
+200 5.5203 20.9914 Sol %% Sun Rise/Set: Jul-19 05:31:13 20:59:29 PST
+201 5.5386 20.9747 Sol %% Sun Rise/Set: Jul-20 05:32:19 20:58:29 PST
+202 5.5572 20.9572 Sol %% Sun Rise/Set: Jul-21 05:33:26 20:57:26 PST
+203 5.5764 20.9392 Sol %% Sun Rise/Set: Jul-22 05:34:35 20:56:21 PST
+204 5.5956 20.9208 Sol %% Sun Rise/Set: Jul-23 05:35:44 20:55:15 PST
+205 5.6153 20.9017 Sol %% Sun Rise/Set: Jul-24 05:36:55 20:54:06 PST
+206 5.6350 20.8819 Sol %% Sun Rise/Set: Jul-25 05:38:06 20:52:55 PST
+207 5.6550 20.8617 Sol %% Sun Rise/Set: Jul-26 05:39:18 20:51:42 PST
+208 5.6753 20.8408 Sol %% Sun Rise/Set: Jul-27 05:40:31 20:50:27 PST
+209 5.6956 20.8197 Sol %% Sun Rise/Set: Jul-28 05:41:44 20:49:11 PST
+210 5.7164 20.7978 Sol %% Sun Rise/Set: Jul-29 05:42:59 20:47:52 PST
+211 5.7369 20.7756 Sol %% Sun Rise/Set: Jul-30 05:44:13 20:46:32 PST
+212 5.7581 20.7528 Sol %% Sun Rise/Set: Jul-31 05:45:29 20:45:10 PST
+213 5.7792 20.7294 Sol %% Sun Rise/Set: Aug-01 05:46:45 20:43:46 PST
+214 5.8003 20.7056 Sol %% Sun Rise/Set: Aug-02 05:48:01 20:42:20 PST
+215 5.8217 20.6814 Sol %% Sun Rise/Set: Aug-03 05:49:18 20:40:53 PST
+216 5.8433 20.6567 Sol %% Sun Rise/Set: Aug-04 05:50:36 20:39:24 PST
+217 5.8647 20.6317 Sol %% Sun Rise/Set: Aug-05 05:51:53 20:37:54 PST
+218 5.8864 20.6061 Sol %% Sun Rise/Set: Aug-06 05:53:11 20:36:22 PST
+219 5.9083 20.5800 Sol %% Sun Rise/Set: Aug-07 05:54:30 20:34:48 PST
+220 5.9300 20.5539 Sol %% Sun Rise/Set: Aug-08 05:55:48 20:33:14 PST
+221 5.9519 20.5269 Sol %% Sun Rise/Set: Aug-09 05:57:07 20:31:37 PST
+222 5.9739 20.5000 Sol %% Sun Rise/Set: Aug-10 05:58:26 20:30:00 PST
+223 5.9958 20.4725 Sol %% Sun Rise/Set: Aug-11 05:59:45 20:28:21 PST
+224 6.0181 20.4444 Sol %% Sun Rise/Set: Aug-12 06:01:05 20:26:40 PST
+225 6.0400 20.4164 Sol %% Sun Rise/Set: Aug-13 06:02:24 20:24:59 PST
+226 6.0622 20.3878 Sol %% Sun Rise/Set: Aug-14 06:03:44 20:23:16 PST
+227 6.0844 20.3589 Sol %% Sun Rise/Set: Aug-15 06:05:04 20:21:32 PST
+228 6.1067 20.3297 Sol %% Sun Rise/Set: Aug-16 06:06:24 20:19:47 PST
+229 6.1289 20.3003 Sol %% Sun Rise/Set: Aug-17 06:07:44 20:18:01 PST
+230 6.1511 20.2706 Sol %% Sun Rise/Set: Aug-18 06:09:04 20:16:14 PST
+231 6.1736 20.2406 Sol %% Sun Rise/Set: Aug-19 06:10:25 20:14:26 PST
+232 6.1958 20.2100 Sol %% Sun Rise/Set: Aug-20 06:11:45 20:12:36 PST
+233 6.2183 20.1794 Sol %% Sun Rise/Set: Aug-21 06:13:06 20:10:46 PST
+234 6.2406 20.1486 Sol %% Sun Rise/Set: Aug-22 06:14:26 20:08:55 PST
+235 6.2631 20.1175 Sol %% Sun Rise/Set: Aug-23 06:15:47 20:07:03 PST
+236 6.2853 20.0864 Sol %% Sun Rise/Set: Aug-24 06:17:07 20:05:11 PST
+237 6.3078 20.0547 Sol %% Sun Rise/Set: Aug-25 06:18:28 20:03:17 PST
+238 6.3300 20.0231 Sol %% Sun Rise/Set: Aug-26 06:19:48 20:01:23 PST
+239 6.3525 19.9911 Sol %% Sun Rise/Set: Aug-27 06:21:09 19:59:28 PST
+240 6.3747 19.9589 Sol %% Sun Rise/Set: Aug-28 06:22:29 19:57:32 PST
+241 6.3972 19.9264 Sol %% Sun Rise/Set: Aug-29 06:23:50 19:55:35 PST
+242 6.4194 19.8939 Sol %% Sun Rise/Set: Aug-30 06:25:10 19:53:38 PST
+243 6.4419 19.8614 Sol %% Sun Rise/Set: Aug-31 06:26:31 19:51:41 PST
+244 6.4642 19.8283 Sol %% Sun Rise/Set: Sep-01 06:27:51 19:49:42 PST
+245 6.4864 19.7956 Sol %% Sun Rise/Set: Sep-02 06:29:11 19:47:44 PST
+246 6.5086 19.7622 Sol %% Sun Rise/Set: Sep-03 06:30:31 19:45:44 PST
+247 6.5311 19.7289 Sol %% Sun Rise/Set: Sep-04 06:31:52 19:43:44 PST
+248 6.5533 19.6956 Sol %% Sun Rise/Set: Sep-05 06:33:12 19:41:44 PST
+249 6.5756 19.6619 Sol %% Sun Rise/Set: Sep-06 06:34:32 19:39:43 PST
+250 6.5978 19.6283 Sol %% Sun Rise/Set: Sep-07 06:35:52 19:37:42 PST
+251 6.6200 19.5947 Sol %% Sun Rise/Set: Sep-08 06:37:12 19:35:41 PST
+252 6.6422 19.5608 Sol %% Sun Rise/Set: Sep-09 06:38:32 19:33:39 PST
+253 6.6647 19.5269 Sol %% Sun Rise/Set: Sep-10 06:39:53 19:31:37 PST
+254 6.6869 19.4928 Sol %% Sun Rise/Set: Sep-11 06:41:13 19:29:34 PST
+255 6.7092 19.4589 Sol %% Sun Rise/Set: Sep-12 06:42:33 19:27:32 PST
+256 6.7314 19.4247 Sol %% Sun Rise/Set: Sep-13 06:43:53 19:25:29 PST
+257 6.7536 19.3906 Sol %% Sun Rise/Set: Sep-14 06:45:13 19:23:26 PST
+258 6.7761 19.3564 Sol %% Sun Rise/Set: Sep-15 06:46:34 19:21:23 PST
+259 6.7983 19.3219 Sol %% Sun Rise/Set: Sep-16 06:47:54 19:19:19 PST
+260 6.8208 19.2878 Sol %% Sun Rise/Set: Sep-17 06:49:15 19:17:16 PST
+261 6.8433 19.2536 Sol %% Sun Rise/Set: Sep-18 06:50:36 19:15:13 PST
+262 6.8656 19.2192 Sol %% Sun Rise/Set: Sep-19 06:51:56 19:13:09 PST
+263 6.8881 19.1850 Sol %% Sun Rise/Set: Sep-20 06:53:17 19:11:06 PST
+264 6.9106 19.1508 Sol %% Sun Rise/Set: Sep-21 06:54:38 19:09:03 PST
+265 6.9333 19.1167 Sol %% Sun Rise/Set: Sep-22 06:56:00 19:07:00 PST
+266 6.9558 19.0822 Sol %% Sun Rise/Set: Sep-23 06:57:21 19:04:56 PST
+267 6.9786 19.0481 Sol %% Sun Rise/Set: Sep-24 06:58:43 19:02:53 PST
+268 7.0011 19.0142 Sol %% Sun Rise/Set: Sep-25 07:00:04 19:00:51 PST
+269 7.0239 18.9800 Sol %% Sun Rise/Set: Sep-26 07:01:26 18:58:48 PST
+270 7.0467 18.9458 Sol %% Sun Rise/Set: Sep-27 07:02:48 18:56:45 PST
+271 7.0694 18.9119 Sol %% Sun Rise/Set: Sep-28 07:04:10 18:54:43 PST
+272 7.0925 18.8781 Sol %% Sun Rise/Set: Sep-29 07:05:33 18:52:41 PST
+273 7.1156 18.8444 Sol %% Sun Rise/Set: Sep-30 07:06:56 18:50:40 PST
+274 7.1383 18.8106 Sol %% Sun Rise/Set: Oct-01 07:08:18 18:48:38 PST
+275 7.1614 18.7769 Sol %% Sun Rise/Set: Oct-02 07:09:41 18:46:37 PST
+276 7.1847 18.7436 Sol %% Sun Rise/Set: Oct-03 07:11:05 18:44:37 PST
+277 7.2078 18.7100 Sol %% Sun Rise/Set: Oct-04 07:12:28 18:42:36 PST
+278 7.2311 18.6769 Sol %% Sun Rise/Set: Oct-05 07:13:52 18:40:37 PST
+279 7.2544 18.6439 Sol %% Sun Rise/Set: Oct-06 07:15:16 18:38:38 PST
+280 7.2778 18.6108 Sol %% Sun Rise/Set: Oct-07 07:16:40 18:36:39 PST
+281 7.3011 18.5781 Sol %% Sun Rise/Set: Oct-08 07:18:04 18:34:41 PST
+282 7.3247 18.5453 Sol %% Sun Rise/Set: Oct-09 07:19:29 18:32:43 PST
+283 7.3483 18.5131 Sol %% Sun Rise/Set: Oct-10 07:20:54 18:30:47 PST
+284 7.3722 18.4806 Sol %% Sun Rise/Set: Oct-11 07:22:20 18:28:50 PST
+285 7.3958 18.4486 Sol %% Sun Rise/Set: Oct-12 07:23:45 18:26:55 PST
+286 7.4197 18.4167 Sol %% Sun Rise/Set: Oct-13 07:25:11 18:25:00 PST
+287 7.4436 18.3850 Sol %% Sun Rise/Set: Oct-14 07:26:37 18:23:06 PST
+288 7.4678 18.3536 Sol %% Sun Rise/Set: Oct-15 07:28:04 18:21:13 PST
+289 7.4919 18.3225 Sol %% Sun Rise/Set: Oct-16 07:29:31 18:19:21 PST
+290 7.5161 18.2914 Sol %% Sun Rise/Set: Oct-17 07:30:58 18:17:29 PST
+291 7.5406 18.2608 Sol %% Sun Rise/Set: Oct-18 07:32:26 18:15:39 PST
+292 7.5650 18.2303 Sol %% Sun Rise/Set: Oct-19 07:33:54 18:13:49 PST
+293 7.5894 18.2003 Sol %% Sun Rise/Set: Oct-20 07:35:22 18:12:01 PST
+294 7.6139 18.1703 Sol %% Sun Rise/Set: Oct-21 07:36:50 18:10:13 PST
+295 7.6386 18.1408 Sol %% Sun Rise/Set: Oct-22 07:38:19 18:08:27 PST
+296 7.6633 18.1117 Sol %% Sun Rise/Set: Oct-23 07:39:48 18:06:42 PST
+297 7.6881 18.0825 Sol %% Sun Rise/Set: Oct-24 07:41:17 18:04:57 PST
+298 7.7131 18.0539 Sol %% Sun Rise/Set: Oct-25 07:42:47 18:03:14 PST
+299 7.7381 18.0258 Sol %% Sun Rise/Set: Oct-26 07:44:17 18:01:33 PST
+300 7.7631 17.9978 Sol %% Sun Rise/Set: Oct-27 07:45:47 17:59:52 PST
+301 7.7881 17.9703 Sol %% Sun Rise/Set: Oct-28 07:47:17 17:58:13 PST
+302 7.8133 17.9431 Sol %% Sun Rise/Set: Oct-29 07:48:48 17:56:35 PST
+303 7.8383 17.9164 Sol %% Sun Rise/Set: Oct-30 07:50:18 17:54:59 PST
+304 7.8636 17.8900 Sol %% Sun Rise/Set: Oct-31 07:51:49 17:53:24 PST
+305 7.8886 17.8639 Sol %% Sun Rise/Set: Nov-01 07:53:19 17:51:50 PST
+306 7.9139 17.8383 Sol %% Sun Rise/Set: Nov-02 07:54:50 17:50:18 PST
+307 7.9392 17.8131 Sol %% Sun Rise/Set: Nov-03 07:56:21 17:48:47 PST
+308 7.9644 17.7883 Sol %% Sun Rise/Set: Nov-04 07:57:52 17:47:18 PST
+309 7.9897 17.7642 Sol %% Sun Rise/Set: Nov-05 07:59:23 17:45:51 PST
+310 7.0150 16.7406 Sol %% Sun Rise/Set: Nov-06 07:00:54 16:44:26 PST
+311 7.0400 16.7172 Sol %% Sun Rise/Set: Nov-07 07:02:24 16:43:02 PST
+312 7.0653 16.6944 Sol %% Sun Rise/Set: Nov-08 07:03:55 16:41:40 PST
+313 7.0903 16.6722 Sol %% Sun Rise/Set: Nov-09 07:05:25 16:40:20 PST
+314 7.1156 16.6503 Sol %% Sun Rise/Set: Nov-10 07:06:56 16:39:01 PST
+315 7.1406 16.6292 Sol %% Sun Rise/Set: Nov-11 07:08:26 16:37:45 PST
+316 7.1656 16.6083 Sol %% Sun Rise/Set: Nov-12 07:09:56 16:36:30 PST
+317 7.1903 16.5883 Sol %% Sun Rise/Set: Nov-13 07:11:25 16:35:18 PST
+318 7.2150 16.5689 Sol %% Sun Rise/Set: Nov-14 07:12:54 16:34:08 PST
+319 7.2397 16.5500 Sol %% Sun Rise/Set: Nov-15 07:14:23 16:33:00 PST
+320 7.2644 16.5317 Sol %% Sun Rise/Set: Nov-16 07:15:52 16:31:54 PST
+321 7.2889 16.5139 Sol %% Sun Rise/Set: Nov-17 07:17:20 16:30:50 PST
+322 7.3131 16.4967 Sol %% Sun Rise/Set: Nov-18 07:18:47 16:29:48 PST
+323 7.3372 16.4803 Sol %% Sun Rise/Set: Nov-19 07:20:14 16:28:49 PST
+324 7.3611 16.4644 Sol %% Sun Rise/Set: Nov-20 07:21:40 16:27:52 PST
+325 7.3847 16.4494 Sol %% Sun Rise/Set: Nov-21 07:23:05 16:26:58 PST
+326 7.4083 16.4347 Sol %% Sun Rise/Set: Nov-22 07:24:30 16:26:05 PST
+327 7.4317 16.4211 Sol %% Sun Rise/Set: Nov-23 07:25:54 16:25:16 PST
+328 7.4544 16.4081 Sol %% Sun Rise/Set: Nov-24 07:27:16 16:24:29 PST
+329 7.4772 16.3956 Sol %% Sun Rise/Set: Nov-25 07:28:38 16:23:44 PST
+330 7.4997 16.3839 Sol %% Sun Rise/Set: Nov-26 07:29:59 16:23:02 PST
+331 7.5217 16.3731 Sol %% Sun Rise/Set: Nov-27 07:31:18 16:22:23 PST
+332 7.5436 16.3628 Sol %% Sun Rise/Set: Nov-28 07:32:37 16:21:46 PST
+333 7.5650 16.3533 Sol %% Sun Rise/Set: Nov-29 07:33:54 16:21:12 PST
+334 7.5858 16.3447 Sol %% Sun Rise/Set: Nov-30 07:35:09 16:20:41 PST
+335 7.6064 16.3367 Sol %% Sun Rise/Set: Dec-01 07:36:23 16:20:12 PST
+336 7.6267 16.3294 Sol %% Sun Rise/Set: Dec-02 07:37:36 16:19:46 PST
+337 7.6464 16.3231 Sol %% Sun Rise/Set: Dec-03 07:38:47 16:19:23 PST
+338 7.6656 16.3175 Sol %% Sun Rise/Set: Dec-04 07:39:56 16:19:03 PST
+339 7.6844 16.3125 Sol %% Sun Rise/Set: Dec-05 07:41:04 16:18:45 PST
+340 7.7028 16.3086 Sol %% Sun Rise/Set: Dec-06 07:42:10 16:18:31 PST
+341 7.7206 16.3053 Sol %% Sun Rise/Set: Dec-07 07:43:14 16:18:19 PST
+342 7.7378 16.3028 Sol %% Sun Rise/Set: Dec-08 07:44:16 16:18:10 PST
+343 7.7544 16.3011 Sol %% Sun Rise/Set: Dec-09 07:45:16 16:18:04 PST
+344 7.7706 16.3003 Sol %% Sun Rise/Set: Dec-10 07:46:14 16:18:01 PST
+345 7.7861 16.3003 Sol %% Sun Rise/Set: Dec-11 07:47:10 16:18:01 PST
+346 7.8011 16.3011 Sol %% Sun Rise/Set: Dec-12 07:48:04 16:18:04 PST
+347 7.8153 16.3028 Sol %% Sun Rise/Set: Dec-13 07:48:55 16:18:10 PST
+348 7.8292 16.3053 Sol %% Sun Rise/Set: Dec-14 07:49:45 16:18:19 PST
+349 7.8422 16.3083 Sol %% Sun Rise/Set: Dec-15 07:50:32 16:18:30 PST
+350 7.8544 16.3125 Sol %% Sun Rise/Set: Dec-16 07:51:16 16:18:45 PST
+351 7.8661 16.3172 Sol %% Sun Rise/Set: Dec-17 07:51:58 16:19:02 PST
+352 7.8772 16.3231 Sol %% Sun Rise/Set: Dec-18 07:52:38 16:19:23 PST
+353 7.8875 16.3294 Sol %% Sun Rise/Set: Dec-19 07:53:15 16:19:46 PST
+354 7.8972 16.3367 Sol %% Sun Rise/Set: Dec-20 07:53:50 16:20:12 PST
+355 7.9061 16.3447 Sol %% Sun Rise/Set: Dec-21 07:54:22 16:20:41 PST
+356 7.9142 16.3533 Sol %% Sun Rise/Set: Dec-22 07:54:51 16:21:12 PST
+357 7.9214 16.3631 Sol %% Sun Rise/Set: Dec-23 07:55:17 16:21:47 PST
+358 7.9281 16.3733 Sol %% Sun Rise/Set: Dec-24 07:55:41 16:22:24 PST
+359 7.9339 16.3842 Sol %% Sun Rise/Set: Dec-25 07:56:02 16:23:03 PST
+360 7.9389 16.3958 Sol %% Sun Rise/Set: Dec-26 07:56:20 16:23:45 PST
+361 7.9433 16.4083 Sol %% Sun Rise/Set: Dec-27 07:56:36 16:24:30 PST
+362 7.9467 16.4214 Sol %% Sun Rise/Set: Dec-28 07:56:48 16:25:17 PST
+363 7.9494 16.4353 Sol %% Sun Rise/Set: Dec-29 07:56:58 16:26:07 PST
+364 7.9511 16.4497 Sol %% Sun Rise/Set: Dec-30 07:57:04 16:26:59 PST
+365 7.9522 16.4647 Sol %% Sun Rise/Set: Dec-31 07:57:08 16:27:53 PST
+showpage
+
+%%EOF
+
