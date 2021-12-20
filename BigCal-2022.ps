@@ -228,7 +228,6 @@
      /phase exch def
      /text exch def
      /angle exch def % 450 exch sub def
-     /langle 450 angle sub def
      angle text event
      radM langle radianpoint 
      gsave 
@@ -238,7 +237,7 @@
        x y moonR 0 360 arc stroke  % Full Moon
        x y moveto
        phase (New)  eq {currentpoint moonR 0 360 arc eofill} if
-       langle rotate
+       angle neg rotate
        phase (First) eq {currentpoint moonR 90 270 arc fill } if
        phase (Last)  eq {currentpoint moonR 270 90 arc fill } if
         grestore
