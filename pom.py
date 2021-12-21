@@ -48,7 +48,7 @@ Central  = USTimeZone(-6, "Central",  "CST", "CDT")
 Mountain = USTimeZone(-7, "Mountain", "MST", "MDT")
 Pacific  = USTimeZone(-8, "Pacific",  "PST", "PDT")
 """
-
+SolEqn = []
 
 def sun_rise_set(city, year):
     '''
@@ -78,8 +78,12 @@ def sun_rise_set(city, year):
             longest_len = day_length
             longest_day = sol
             longest_set = set
-        print("{:d} {:6.4f} {:7.4f} Sol %% Sun Rise/Set: {} {} PST".format(
-              day, rise_dec, set_dec, sol.strftime("%b-%d %H:%M:%S"), set.strftime("%H:%M:%S")))
+        if day in SolEqn:
+            label = 'SolEqn'  # This day is an Soltice or Equinox
+        else:
+            label = 'Sol'
+        print("{:d} {:6.4f} {:7.4f} {} %% Sun Rise/Set: {} {} PST".format(
+              day, rise_dec, set_dec, label, sol.strftime("%b-%d %H:%M:%S"), set.strftime("%H:%M:%S")))
         sea.date += 1
     sys.stderr.write("Ealest Sun Rise: {}\n".format(earlest_sol.strftime("%b-%d %H:%M:%S")))
     sys.stderr.write("Longest Day      {} {}\n".format(longest_day.strftime("%b-%d %H:%M:%S"),
@@ -92,10 +96,11 @@ def get_angle_localtime(ephem_date):
     convert date to angle
     """
     local = ephem.localtime(ephem_date)
+    dayofyear = local.timetuple()[7]
     time_str = "{:02d}:{:02d}".format(local.hour, local.minute)
     angle = float(local.timetuple().tm_yday - 1) / float(days_year) * 360.0
     angle += float(local.hour * 60 + local.minute) / 1440.0
-    return (angle, time_str, local.ctime())
+    return (angle, time_str, local.ctime(), dayofyear)
 
 
 def sol(year):
@@ -103,19 +108,16 @@ def sol(year):
        Output format
        77.89 (Spring Equinox 04:30) event %% 2016/3/20 04:30:03Z
     """
-    springEqn = ephem.next_equinox(year)
-    summerSol = ephem.next_solstice(year)
-    fallEqn = ephem.next_equinox(year + '/6/1')
-    winterSol = ephem.next_solstice(year + '/9/1')
+    events = [('Spring Equinox', ephem.next_equinox(year)),
+              ('Summer Soltice', ephem.next_solstice(year)),
+              ('Fall Equinox', ephem.next_equinox(year + '/6/1')),
+              ('Winter Soltice', ephem.next_solstice(year + '/9/1')),
+    ]
 
-    (angle, time_str, local) = get_angle_localtime(springEqn)
-    print("{:6.2f} ({} {}) event %% {} ".format(angle, "Spring Equinox", time_str, local))
-    (angle, time_str, local) = get_angle_localtime(summerSol)
-    print("{:6.2f} ({} {}) event %% {} ".format(angle, "Summer Soltice", time_str, local))
-    (angle, time_str, local) = get_angle_localtime(fallEqn)
-    print("{:6.2f} ({} {}) event %% {} ".format(angle, "Fall Equinox", time_str, local))
-    (angle, time_str, local) = get_angle_localtime(winterSol)
-    print("{:6.2f} ({} {}) event %% {} ".format(angle, "Winter Soltice", time_str, local))
+    for day in events:
+        (angle, time_str, local, dayofyear) = get_angle_localtime(day[1])
+        print("{:6.2f} ({} {}) event %% {} ".format(angle, day[0], time_str, local))
+        SolEqn.append(dayofyear)
 
 
 def pom_format(name, date):
@@ -123,7 +125,7 @@ def pom_format(name, date):
     PostScript Format: 4.11 (Full Moon 04:53) (Full) pom
     PostScript commands:  Full New First Last
     """
-    (angle, time_str, local) = get_angle_localtime(date)
+    (angle, time_str, local, dayofyear) = get_angle_localtime(date)
     (cmd, des) = name.split()
     pom_str = "{:6.2f} ({} {}) ({}) pom %% {}Z".format(angle, name, time_str, cmd, local)
     return pom_str
