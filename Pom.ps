@@ -1,0 +1,81 @@
+%!PS-Adobe-3.0
+%%Creater: John Dey
+%%CreationDate: Dec 2021
+%%BoundingBox: 0 0 792 612
+
+% Draw the eight phases of the Moon. Use Bezier curveto for rendering
+% the Cresent and Gibbous moon. The Bezier is not not perfect, but
+% this rendering is sufficent for Calanders.
+
+/yMid 792 2 div def
+/xMid 612 2 div def
+
+/d 140 def
+/moonR d 2 div def
+
+/radianpoint {  % leave x,y on stacke at angle and radius
+    /Rangle exch def
+    /Radius exch def
+    xMid Rangle cos Radius mul add
+    yMid Rangle sin Radius mul add
+} def
+
+/Pom {
+  /phase exch def
+  /radius exch def
+  /yCenter exch def
+  /xCenter exch def
+
+  .5 setlinewidth 
+  phase (New) eq { xCenter yCenter radius 0 360 arc fill } if
+  phase (Full) eq { xCenter yCenter radius 0 360 arc stroke } if
+  % First quarter dark left
+  phase (First) eq { xCenter yCenter radius 90 270 arc  fill } if
+  % Last quarter dark left
+  phase (Last) eq { xCenter yCenter radius 270 90 arc  fill } if
+
+  % Control Point for Bezier, linear from Center
+  /cp radius 5 div 3 mul def
+
+  % Draw Half Circle 
+  phase (WaxingCrescent) eq phase (WaxingGibbous) eq or {
+    xCenter yCenter radius 270 90 arcn } if
+  phase (WaningCrescent) eq phase (WaningGibbous) eq or {
+    xCenter yCenter radius 270 90 arc } if
+
+  % Bezier Curve Cresent
+  phase (WaningCrescent) eq phase (WaxingGibbous) eq or {
+    xCenter cp sub yCenter cp add % x1 y1
+    xCenter cp sub yCenter cp sub % x2 y2
+    xCenter yCenter radius sub % x3 y3
+    curveto fill } if
+  phase (WaxingCrescent) eq phase (WaningGibbous) eq or {
+    % Bezier Curve Cresent
+    xCenter cp add yCenter cp add % x1 y1
+    xCenter cp add yCenter cp sub % x2 y2
+    xCenter yCenter radius sub % x3 y3
+    curveto fill } if
+} def
+
+/dis 215 def
+dis   0 radianpoint  moonR (Full) Pom
+dis  45 radianpoint  moonR (WaningGibbous) Pom 
+dis  90 radianpoint  moonR (Last) Pom 
+dis 135 radianpoint  moonR (WaningCrescent) Pom
+dis 180 radianpoint  moonR (New) Pom 
+dis 225 radianpoint  moonR (WaxingCrescent) Pom 
+dis 270 radianpoint  moonR (First) Pom 
+dis 315 radianpoint  moonR (WaxingGibbous) Pom
+
+/dis 72 def /moonR 22 def
+dis   0 radianpoint  moonR (Full) Pom
+dis  45 radianpoint  moonR (WaningGibbous) Pom 
+dis  90 radianpoint  moonR (Last) Pom 
+dis 135 radianpoint  moonR (WaningCrescent) Pom
+dis 180 radianpoint  moonR (New) Pom 
+dis 225 radianpoint  moonR (WaxingCrescent) Pom 
+dis 270 radianpoint  moonR (First) Pom 
+dis 315 radianpoint  moonR (WaxingGibbous) Pom
+showpage
+
+%%EOF
