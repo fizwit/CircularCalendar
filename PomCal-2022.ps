@@ -190,7 +190,7 @@
   1 setgray  % White
   0 setlinecap  % butt caps
   lweight (norm) eq { 
-      1 setlinewidth 
+      .5 setlinewidth 
   } if
   lweight (thick) eq { 
       1.5 setlinewidth 
@@ -231,72 +231,45 @@
      /phase exch def
      /text exch def
      /angle exch def % 450 exch sub def
+
      /langle 450 angle sub def
      .5 setlinewidth
      rad1 rad1  5 add langle radianLine
      radM langle radianpoint 
      gsave 
-       currentpoint /y exch def /x exch def
-       .25 setlinewidth
-       newpath
-       x y moonR 0 360 arc stroke  % Full Moon
-       x y moveto
-       phase (New)  eq {currentpoint moonR 0 360 arc eofill} if
        angle neg rotate
-       phase (First) eq {currentpoint moonR 90 270 arc fill } if
-       phase (Last)  eq {currentpoint moonR 270 90 arc fill } if
-        grestore
-  } bind def
+       currentpoint /yCenter exch def /xCenter exch def
+       newpath
+       phase (New) eq { xCenter yCenter moonR 0 360 arc fill } if
+       phase (Full) eq { xCenter yCenter moonR 0 360 arc stroke } if
+       % First quarter dark left
+       phase (First) eq { xCenter yCenter moonR 90 270 arc  fill } if
+       % Last quarter dark left
+       phase (Last) eq { xCenter yCenter moonR 270 90 arc  fill } if
 
-  /event {  % place text and radian line on Calander 
-    /text exch def
-    /angle exch def
-    gsave
-    /BabelSans findfont 8 scalefont setfont
-    .25 setlinewidth
-    /langle 450 angle sub def
-    radI rad6 langle radianLine 
-    angle 180 gt {rad6 text stringwidth pop add langle radianpoint 
-                  270 angle sub rotate 0 1 rmoveto text show }
-                 {rad6 langle radianpoint  % moveto
-                  langle rotate 0 1 rmoveto text show } ifelse
-    grestore
-  } bind def
-  
-  /underevent {  % place text Under radian line on Calander 
-    /text exch def
-    /angle exch def
-    gsave
-    /BabelSans findfont 8 scalefont setfont
-    .25 setlinewidth
-    /langle 450 angle sub def
-    radI rad6 langle radianLine 
-    angle 180 gt % left half
-                 {rad6 text stringwidth pop add langle radianpoint 
-                  270 angle sub rotate 0 1 rmoveto text show }
-                 % right side
-                 {rad6 langle radianpoint  % moveto
-                  langle rotate 0 -7 rmoveto text show } ifelse
+       % Control Point for Bezier, linear from Center
+       /cp moonR 5 div 3 mul def
 
+       % Draw Half Circle
+       phase (WaxingCrescent) eq phase (WaxingGibbous) eq or {
+         xCenter yCenter moonR 270 90 arcn } if
+       phase (WaningCrescent) eq phase (WaningGibbous) eq or {
+         xCenter yCenter moonR 270 90 arc } if
 
-    grestore
-  } bind def
-
-
-      %Left side black
-      /firstMoon {   
-         /text exch def
-         /angle exch 450 exch sub def
-         rad3 rad6 angle radianline 
-         rad6 angle radianpoint 
-         gsave 
-         /BabelSans findfont 8 scalefont setfont
-           angle rotate 0 1 rmoveto text show grestore
-         radM angle radianpoint 
-         gsave angle rotate 
-         currentpoint newpath moonR 90 270 arc fill 
-         grestore
-      } bind def
+       % Bezier Curve Cresent
+       phase (WaningCrescent) eq phase (WaxingGibbous) eq or {
+         xCenter cp sub yCenter cp add % x1 y1
+         xCenter cp sub yCenter cp sub % x2 y2
+         xCenter yCenter moonR sub % x3 y3
+         curveto fill } if
+       phase (WaxingCrescent) eq phase (WaningGibbous) eq or {
+         % Bezier Curve Cresent
+         xCenter cp add yCenter cp add % x1 y1
+         xCenter cp add yCenter cp sub % x2 y2
+         xCenter yCenter moonR sub % x3 y3
+         curveto fill } if
+     grestore
+} def %pom
 
 %%EndProcSet
 %%EndProlog
@@ -383,12 +356,12 @@ Dom /dom exch def
   /plus90 CenterAngle 270 add def
 
   % Draw Lines between days
+  .5 setlinewidth
   rad1 radI edge radianline 
   % draw lines between Months, Use heavier line, extend past radI
   1 dom eq { 
      1.5 setlinewidth
-     rad1 rad3 edge radianLine
-     1 setlinewidth
+     rad1 rad3 20 sub edge radianLine
      } if  
 
   % Lable Day of Month
@@ -401,6 +374,8 @@ Dom /dom exch def
 
   % draw white line btw Sat Sun
   0 dowI 7 mod eq { rad1 .5 sub rad2 edge (norm) radianlinewhite } if
+  % Todo If boundry betwee Sat Sun is Month boundry use (thick)
+  0 dowI 7 mod eq dom 1 eq and { rad1 .5 sub rad2 edge (thick) radianlinewhite } if
   
   % Draw Day of Week - reset color to Black
   xMid xc radW mul add yMid yc radW mul add plus90 
@@ -452,54 +427,103 @@ xMid yMid rad3 0 360 arc  stroke
 %261.14 (Fall Equinox 18:03) event %% Thu Sep 22 18:03:33 2022 
 %349.73 (Winter Soltice 13:48) event %% Wed Dec 21 13:48:00 2022 
   1.43 (New Moon 10:33) (New) pom %% Sun Jan  2 10:33:29 2022Z
+  4.87 (WaxingCrescent) (WaxingCrescent) pom %% 
   8.31 (First Quarter 10:11) (First) pom %% Sun Jan  9 10:11:15 2022Z
+ 12.38 (WaxingGibbous) (WaxingGibbous) pom %% 
  16.44 (Full Moon 15:48) (Full) pom %% Mon Jan 17 15:48:25 2022Z
+ 20.18 (WaningGibbous) (WaningGibbous) pom %% 
  23.91 (Last Quarter 05:40) (Last) pom %% Tue Jan 25 05:40:54 2022Z
+ 27.20 (WaningCrescent) (WaningCrescent) pom %% 
  30.50 (New Moon 21:45) (New) pom %% Mon Jan 31 21:45:59 2022Z
+ 34.11 (WaxingCrescent) (WaxingCrescent) pom %% 
  37.72 (First Quarter 05:50) (First) pom %% Tue Feb  8 05:50:06 2022Z
+ 41.73 (WaxingGibbous) (WaxingGibbous) pom %% 
  45.74 (Full Moon 08:56) (Full) pom %% Wed Feb 16 08:56:29 2022Z
+ 49.31 (WaningGibbous) (WaningGibbous) pom %% 
  52.88 (Last Quarter 14:32) (Last) pom %% Wed Feb 23 14:32:25 2022Z
+ 56.23 (WaningCrescent) (WaningCrescent) pom %% 
  59.58 (New Moon 09:34) (New) pom %% Wed Mar  2 09:34:44 2022Z
+ 63.38 (WaxingCrescent) (WaxingCrescent) pom %% 
  67.18 (First Quarter 02:45) (First) pom %% Thu Mar 10 02:45:22 2022Z
+ 71.08 (WaxingGibbous) (WaxingGibbous) pom %% 
  74.97 (Full Moon 00:17) (Full) pom %% Fri Mar 18 00:17:32 2022Z
+ 78.39 (WaningGibbous) (WaningGibbous) pom %% 
  81.82 (Last Quarter 22:37) (Last) pom %% Thu Mar 24 22:37:15 2022Z
+ 85.29 (WaningCrescent) (WaningCrescent) pom %% 
  88.76 (New Moon 23:24) (New) pom %% Thu Mar 31 23:24:22 2022Z
+ 92.71 (WaxingCrescent) (WaxingCrescent) pom %% 
  96.66 (First Quarter 23:47) (First) pom %% Fri Apr  8 23:47:35 2022Z
+100.36 (WaxingGibbous) (WaxingGibbous) pom %% 
 104.06 (Full Moon 11:55) (Full) pom %% Sat Apr 16 11:55:00 2022Z
+107.37 (WaningGibbous) (WaningGibbous) pom %% 
 110.67 (Last Quarter 04:56) (Last) pom %% Sat Apr 23 04:56:19 2022Z
+114.30 (WaningCrescent) (WaningCrescent) pom %% 
 117.93 (New Moon 13:28) (New) pom %% Sat Apr 30 13:28:03 2022Z
+121.96 (WaxingCrescent) (WaxingCrescent) pom %% 
 125.98 (First Quarter 17:21) (First) pom %% Sun May  8 17:21:21 2022Z
+129.52 (WaxingGibbous) (WaxingGibbous) pom %% 
 133.05 (Full Moon 21:14) (Full) pom %% Sun May 15 21:14:07 2022Z
+136.31 (WaningGibbous) (WaningGibbous) pom %% 
 139.56 (Last Quarter 11:43) (Last) pom %% Sun May 22 11:43:03 2022Z
+143.36 (WaningCrescent) (WaningCrescent) pom %% 
 147.15 (New Moon 04:30) (New) pom %% Mon May 30 04:30:14 2022Z
+151.16 (WaxingCrescent) (WaxingCrescent) pom %% 
 155.17 (First Quarter 07:48) (First) pom %% Tue Jun  7 07:48:27 2022Z
+158.56 (WaxingGibbous) (WaxingGibbous) pom %% 
 161.96 (Full Moon 04:51) (Full) pom %% Tue Jun 14 04:51:43 2022Z
+165.24 (WaningGibbous) (WaningGibbous) pom %% 
 168.51 (Last Quarter 20:10) (Last) pom %% Mon Jun 20 20:10:46 2022Z
+172.45 (WaningCrescent) (WaningCrescent) pom %% 
 176.39 (New Moon 19:52) (New) pom %% Tue Jun 28 19:52:13 2022Z
+180.32 (WaxingCrescent) (WaxingCrescent) pom %% 
 184.25 (First Quarter 19:14) (First) pom %% Wed Jul  6 19:14:06 2022Z
+187.55 (WaxingGibbous) (WaxingGibbous) pom %% 
 190.84 (Full Moon 11:37) (Full) pom %% Wed Jul 13 11:37:35 2022Z
+194.20 (WaningGibbous) (WaningGibbous) pom %% 
 197.56 (Last Quarter 07:18) (Last) pom %% Wed Jul 20 07:18:34 2022Z
+201.58 (WaningCrescent) (WaningCrescent) pom %% 
 205.60 (New Moon 10:54) (New) pom %% Thu Jul 28 10:54:58 2022Z
+209.41 (WaxingCrescent) (WaxingCrescent) pom %% 
 213.21 (First Quarter 04:06) (First) pom %% Fri Aug  5 04:06:30 2022Z
+216.47 (WaxingGibbous) (WaxingGibbous) pom %% 
 219.73 (Full Moon 18:35) (Full) pom %% Thu Aug 11 18:35:41 2022Z
+223.25 (WaningGibbous) (WaningGibbous) pom %% 
 226.76 (Last Quarter 21:36) (Last) pom %% Thu Aug 18 21:36:03 2022Z
+230.77 (WaningCrescent) (WaningCrescent) pom %% 
 234.79 (New Moon 01:17) (New) pom %% Sat Aug 27 01:17:04 2022Z
+238.45 (WaxingCrescent) (WaxingCrescent) pom %% 
 242.11 (First Quarter 11:07) (First) pom %% Sat Sep  3 11:07:42 2022Z
+245.39 (WaxingGibbous) (WaxingGibbous) pom %% 
 248.67 (Full Moon 02:59) (Full) pom %% Sat Sep 10 02:59:00 2022Z
+252.37 (WaningGibbous) (WaningGibbous) pom %% 
 256.07 (Last Quarter 14:51) (Last) pom %% Sat Sep 17 14:51:57 2022Z
+260.01 (WaningCrescent) (WaningCrescent) pom %% 
 263.96 (New Moon 14:54) (New) pom %% Sun Sep 25 14:54:31 2022Z
+267.46 (WaxingCrescent) (WaxingCrescent) pom %% 
 270.96 (First Quarter 17:14) (First) pom %% Sun Oct  2 17:14:00 2022Z
+274.35 (WaxingGibbous) (WaxingGibbous) pom %% 
 277.73 (Full Moon 13:54) (Full) pom %% Sun Oct  9 13:54:56 2022Z
+281.60 (WaningGibbous) (WaningGibbous) pom %% 
 285.47 (Last Quarter 10:15) (Last) pom %% Mon Oct 17 10:15:04 2022Z
+289.28 (WaningCrescent) (WaningCrescent) pom %% 
 293.09 (New Moon 03:48) (New) pom %% Tue Oct 25 03:48:40 2022Z
+296.46 (WaxingCrescent) (WaxingCrescent) pom %% 
 299.83 (First Quarter 23:37) (First) pom %% Mon Oct 31 23:37:04 2022Z
+303.35 (WaxingGibbous) (WaxingGibbous) pom %% 
 306.87 (Full Moon 03:02) (Full) pom %% Tue Nov  8 03:02:07 2022Z
+310.87 (WaningGibbous) (WaningGibbous) pom %% 
 314.86 (Last Quarter 05:27) (Last) pom %% Wed Nov 16 05:27:01 2022Z
+318.51 (WaningCrescent) (WaningCrescent) pom %% 
 322.16 (New Moon 14:57) (New) pom %% Wed Nov 23 14:57:12 2022Z
+325.44 (WaxingCrescent) (WaxingCrescent) pom %% 
 328.71 (First Quarter 06:36) (First) pom %% Wed Nov 30 06:36:30 2022Z
+332.44 (WaxingGibbous) (WaxingGibbous) pom %% 
 336.18 (Full Moon 20:08) (Full) pom %% Wed Dec  7 20:08:09 2022Z
+340.22 (WaningGibbous) (WaningGibbous) pom %% 
 344.26 (Last Quarter 00:56) (Last) pom %% Fri Dec 16 00:56:03 2022Z
+347.74 (WaningCrescent) (WaningCrescent) pom %% 
 351.22 (New Moon 02:16) (New) pom %% Fri Dec 23 02:16:51 2022Z
+354.49 (WaxingCrescent) (WaxingCrescent) pom %% 
 357.76 (First Quarter 17:20) (First) pom %% Thu Dec 29 17:20:30 2022Z
 1 7.9525 16.4844 Sol %% Sun Rise/Set: Jan-01 07:57:09 16:29:04 PST
 2 7.9517 16.5011 Sol %% Sun Rise/Set: Jan-02 07:57:06 16:30:04 PST

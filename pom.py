@@ -130,8 +130,36 @@ def pom_format(name, date):
     pom_str = "{:6.2f} ({} {}) ({}) pom %% {}Z".format(angle, name, time_str, cmd, local)
     return pom_str
 
+def interpolate_cresent_moon(moons):
+    """ ephem only report 4 phases of the moon, I want eight 
+    Add Cresent and Gibbos moons between quarters based on angle
+    """
+    newMoons = []
+    phases = ['New', 'First', 'Full', 'Last']
+    newPhases = ['WaxingCrescent', 'WaxingGibbous', 'WaningGibbous', 'WaningCrescent']
 
-def get_moons_in_year(year, quarter=False):
+    last = False 
+    for phase in moons:
+        fields = phase.split()
+        angle = float(fields[0])
+        if last:
+            newAngle = lastAngle + ((angle - lastAngle) / 2.0)
+            pom_str = "{:6.2f} ({}) ({}) pom %% ".format(newAngle, newPhases[newP], newPhases[newP])
+            newMoons.append(lastr)
+            newMoons.append(pom_str)
+        else:
+            last = True
+        lastr = phase
+        lastAngle = angle 
+        if fields[1].strip('(') in phases:
+            newP = phases.index(fields[1].strip('('))
+        else:
+            print('Error what phase of the moon is this: {}'.format(fields[1]))
+            sys.exit()
+    newMoons.append(phase)
+    return newMoons
+
+def get_moons_in_year(year):
     """
     Returns a list of the full and new moons in a year. The list contains tuples
     of either the form (DATE,'full') or the form (DATE,'new')
@@ -141,33 +169,38 @@ def get_moons_in_year(year, quarter=False):
     moons = []
 
     date = ephem.Date(datetime.date(year, 1, 1))
+    end = ephem.Date(datetime.datetime(year, 12, 31, 23, 59))
     while date.datetime().year == year:
         date = ephem.next_full_moon(date)
-        moons.append(pom_format('Full Moon', date))
+        if date < end:
+            moons.append(pom_format('Full Moon', date))
 
     date = ephem.Date(datetime.date(year, 1, 1))
     while date.datetime().year == year:
         date = ephem.next_new_moon(date)
-        moons.append(pom_format('New Moon', date))
+        if date < end:
+            moons.append(pom_format('New Moon', date))
 
-    if quarter is True:
-        date = ephem.Date(datetime.date(year, 1, 1))
-        while date.datetime().year == year:
-            date = ephem.next_first_quarter_moon(date)
+    date = ephem.Date(datetime.date(year, 1, 1))
+    while date.datetime().year == year:
+        date = ephem.next_first_quarter_moon(date)
+        if date < end:
             moons.append(pom_format('First Quarter', date))
 
-        date = ephem.Date(datetime.date(year, 1, 1))
-        while date.datetime().year == year:
-            date = ephem.next_last_quarter_moon(date)
+    date = ephem.Date(datetime.date(year, 1, 1))
+    while date.datetime().year == year:
+        date = ephem.next_last_quarter_moon(date)
+        if date < end:
             moons.append(pom_format('Last Quarter', date))
 
-        moons.sort(key=lambda x: float(x.split()[0]))
+    moons.sort(key=lambda x: float(x.split()[0]))
     return moons
 
 
 sol(year)
-pom = get_moons_in_year(int(year), quarter=True)
-for phase in pom:
+pom = get_moons_in_year(int(year))
+MoonPhases = interpolate_cresent_moon(pom)
+for phase in MoonPhases:
     print(phase)
 sun_rise_set(city, int(year))
 print("showpage\n\n%%EOF\n")
