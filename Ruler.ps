@@ -1,0 +1,140 @@
+%!PS-Adobe-2.0
+%%Creator: John Dey Copyright 2022
+%%Title: SunRise Ruler
+%%Pages: 1
+%%DocumentPaperSizes: Letter
+%%BoundingBox: 0 0 612 792
+%%EndComments
+%%BeginProlog
+%%CreationDate: Jan 2015
+%%Copyright: 2021 John Dey
+%%+    This program is free software: you can redistribute it and/or modify
+%%+    it under the terms of the GNU General Public License as published by
+%%+    the Free Software Foundation, either version 3 of the License, or
+%%+    (at your option) any later version.
+%%+
+%%+    This program is distributed in the hope that it will be useful,
+%%+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%%+    GNU General Public License for more details.
+%%+
+%%+    You should have received a copy of the GNU General Public License
+%%+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+%%Version: 1.0 0
+
+
+
+%%Page: 1
+/ProcessDSCComment {
+  (%%Tile: John Deyyy) }
+/Creator (John Dey)
+/inch {72.0 mul } def
+/halfInch {36.0 mul } def
+
+/paperWidth  {8.5 inch} def
+/paperHeight {11 inch} def
+
+/xorig {1.2 inch} def
+/yorig {0.35 inch} def
+
+% Define Smaller Size Text Width (_sm)
+/BabelSans findfont 12 scalefont setfont
+/halfhour (:30) stringwidth pop def
+
+% Define Text Width for Hour (large)
+/BabelSans findfont 14 scalefont setfont
+/doublezero (:00) stringwidth pop def
+/MaxWidth (23:00) stringwidth pop 8 add 2 div def
+
+
+/hourLine { % think line on the hour
+  /hourl exch def
+  % width is wider if "full" hour, shorter if "half"
+  (full) eq {
+      /width MaxWidth def
+    }{
+      /width MaxWidth 6 add def
+    } ifelse
+  /y hourl halfInch yorig add def
+  % draw two lines with gap for hour text
+  X 1 inch sub y moveto
+  X width sub y lineto stroke
+  X width add y moveto X 1 inch add y lineto stroke
+} def
+
+/quarterLine {
+  /h exch def
+  /lw currentlinewidth def
+  .25 setlinewidth
+  6 6 36 {
+      /y1 exch def
+      /y h halfInch yorig add y1 add def
+      % draw two lines with gap for hour text
+      X 1 inch sub y moveto
+      X 36 sub y lineto stroke
+      X 36 add y moveto X 1 inch add y lineto stroke
+  } for
+  lw setlinewidth
+} def  % quarterLine
+
+/hourText { % print Hour and Half hour Text; 2 arguments: [(half)(full) hour hourText] 
+  /hourl exch  def
+  /ifFull exch def
+  /hourW 1 def
+  ifFull (full) eq
+    {/BabelSans findfont 14 scalefont setfont /minWidth doublezero def}
+    {/BabelSans findfont 12 scalefont setfont /minWidth halfhour def}
+  ifelse
+
+  hourl 12 gt {/text hourl 12 sub def}
+              {/text hourl def } ifelse
+  hourl 9 gt {/hourW 2 def} if
+  /hour_string text hourW string cvs def
+
+  X hour_string stringwidth pop minWidth add 2 div sub
+    ifFull (full) eq
+      { yorig 4 sub hourl halfInch add moveto
+        hour_string show (:00) show }
+      { yorig 4 sub hourl halfInch .5 halfInch add add moveto
+        hour_string show (:30) show } ifelse
+} def
+
+/startHour 4 def
+
+0 1 3 { % 4 rulers
+  /X exch 144 mul xorig add def
+  .5 setlinewidth
+  X 72 add 0 moveto 0 18 rlineto stroke
+  X 72 add 792 moveto 0 18 neg rlineto stroke
+    
+  % Zero Hour
+  1 setlinewidth
+  (full) 0 hourLine
+  (full) 0 hourText
+
+  .5 setlinewidth
+  /BabelSans findfont 12 scalefont setfont
+  startHour 1 23 {
+    /hour exch def
+    (full) hour hourLine
+    (full) hour hourText
+    (half) hour .5 add hourLine
+    (half) hour hourText
+    %hour halfhourText
+    hour quarterLine
+  } for % ruler
+} for % 4 rulers
+
+
+/SolEqn {pop pop pop} def
+%%EndProcSet
+%%EndProlog
+
+% 79 7.1933 19.3772 SolEqn %% Sun Rise/Set: Mar-20 07:11:36 19:22:38 PST
+% 172 5.1872 21.1861 SolEqn %% Sun Rise/Set: Jun-21 05:11:14 21:11:10 PST
+% 265 6.9333 19.1167 SolEqn %% Sun Rise/Set: Sep-22 06:56:00 19:07:00 PST
+% 355 7.9061 16.3447 SolEqn %% Sun Rise/Set: Dec-21 07:54:22 16:20:41 PST
+ 
+showpage
+
+%%EOF

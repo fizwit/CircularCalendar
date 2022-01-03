@@ -1,7 +1,8 @@
 %!PS-Adobe
-%%Creater: John Dey
+%%Creator: John Dey Copyright 2022
+%%Title: Solar Lunar Circular Calendar
 %%CreationDate: Jan 2015
-%%Copyright: 2021 John Dey
+%%Copyright: 2015-2022 John Dey
 %%+    This program is free software: you can redistribute it and/or modify
 %%+    it under the terms of the GNU General Public License as published by
 %%+    the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +15,6 @@
 %%+
 %%+    You should have received a copy of the GNU General Public License
 %%+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-%%Title: CircularCalendar
 %%Version: 2.0 0
 %%Pages: 1
 %%BoundingBox: 72 72 2522 2522   % 1 in smaller than 36x36
@@ -31,7 +31,8 @@
                % 0-Sun, 1-Mon, 6=Sa 
 /Dom  {1} def  % Day Of Month 1=1,
                  % Jan Feb Mar Apr Apr May Jun Jul Aug Sep Oct Nov Dec
-/ChineseMonthlen {[30 29 29 30 29 30 30 29 30 29 30 29]} def
+/ifLunar false def
+/LunarMonthlen {[30 29 29 30 29 30 30 29 30 29 30 29]} def
 /chineseNY {31} def % Day number -1 of Chinese New Year. Jan 25 = 24, Feb 5th = 35 
 /inch {72.0 mul } def
 /paperWidth  {36 inch } def
@@ -39,19 +40,25 @@
  
 /xMid {paperWidth 2 div } def
 /yMid {paperHeight 2 div } def
-/fontSize 14 def
+/fontSize 16 def
+/domBaseLine 6 def
 /dayArc {360.0 days_yearF div} def
 /half_dayArc {dayArc 2.0 div} def
 /EdgeAngle 450 def          % Messy math for edge text
 /moonR {24} def
 /radO {paperWidth 2.0 div 72 sub} def
-/rad1 { radO moonR 2 mul 10 add  sub} def
+ifLunar {
+  /rad0 { radO moonR 2 mul 10 add  sub} def
+  /rad1 { rad0 24 sub} def
+}{
+  /rad1 { radO moonR 2 mul 10 add  sub} def
+} ifelse
 /rad2 { rad1 24 sub} def
 /rad3 { rad2 24 sub } def
 /radI { rad3 } def
 /rad6 { radI 72 sub 10 sub} def  %% 72 is better
-/radD { rad3 7 add } def   % Day of Month 
-/radW { rad2 8 add } def   % Day of Week
+/radD { rad3 domBaseLine add } def   % Day of Month 
+/radW { rad2 domBaseLine add } def   % Day of Week
 /radM {radO moonR sub } def  % Center of Moon
 
 /city {(Seattle)} def
@@ -162,27 +169,29 @@
 } def
 
 /radianpoint {  % move to angle and radius
-    /Rangle exch def
-    /Radius exch def
-    xMid Rangle cos Radius mul add
-    yMid Rangle sin Radius mul add moveto
+  /Rangle exch def
+  /Radius exch def
+  xMid Rangle cos Radius mul add
+  yMid Rangle sin Radius mul add moveto
 } def
 
 /radianLine {
-    /Rangle exch def
-    /insideR exch def
-    /outsideR exch def
-    xMid Rangle cos insideR mul add
-    yMid Rangle sin insideR mul add moveto
-    xMid Rangle cos outsideR mul add
-    yMid Rangle sin outsideR mul add lineto stroke
+  /Rangle exch def
+  /insideR exch def
+  /outsideR exch def
+  xMid Rangle cos insideR mul add
+  yMid Rangle sin insideR mul add moveto
+  xMid Rangle cos outsideR mul add
+  yMid Rangle sin outsideR mul add lineto stroke
 } def
+
 /radianline {
-    gsave 
-    0 setgray 
-    %.5 setlinewidth
-    radianLine
-    grestore } def
+  gsave 
+  0 setgray 
+  %.5 setlinewidth
+  radianLine
+  grestore
+} def % radianline
 
 /radianlinewhite { 
   /lweight exch def
@@ -196,90 +205,86 @@
       1.5 setlinewidth 
   } if
   radianLine
-  grestore } def
+  grestore 
+} def %radianLineWhite
   
-  /ruler {
-    /hr 7 def
-    .25 setlinewidth
-    gsave  
-    450 77.5 neg rotate
-    1 1 14 { /index exch def 
-            newpath
-            %xMid yMid hr 36.0 mul  0 360 arc  stroke
-            xMid hr 36.0 mul add yMid moveto
-            0 12 rlineto stroke
-            xMid hr 36.0 mul add yMid 1 sub moveto 
-            Hours index get show
-            /hr hr 1 add def
-    } for 
-    grestore
-  } def
+/ruler {
+  /hr 7 def
+  .25 setlinewidth
+  gsave  
+  450 77.5 neg rotate
+  1 1 14 { /index exch def 
+          newpath
+          %xMid yMid hr 36.0 mul  0 360 arc  stroke
+          xMid hr 36.0 mul add yMid moveto
+          0 12 rlineto stroke
+          xMid hr 36.0 mul add yMid 1 sub moveto 
+          Hours index get show
+          /hr hr 1 add def
+  } for 
+  grestore
+} def % ruler
 
-  % Draw SunRise SunSet lines
-  /SolEqn { 1 setlinewidth SunRiseSet} def
-  /Sol { .25 setlinewidth SunRiseSet} def
-  /SunRiseSet {
+% Draw SunRise SunSet lines
+/SolEqn { 1 setlinewidth SunRiseSet} def
+/Sol { .25 setlinewidth SunRiseSet} def
+/SunRiseSet {
     /set exch  36.0 mul rad3 exch sub def
     /rise exch 36.0 mul rad3 exch sub def
     /day_num exch def
     /angle 450 day_num dayArc mul half_dayArc sub sub def
     rise set angle radianLine
-  } def
+} def %SunRiseSet
 
-  % pom Phase of Moon (new full)Draw New Moon (Black)
-  /pom {
-     /phase exch def
-     /text exch def
-     /angle exch def % 450 exch sub def
+% pom Phase of Moon (new full)Draw New Moon (Black)
+/pom {
+  /phase exch def
+  /text exch def
+  /angle exch def % 450 exch sub def
 
-     /langle 450 angle sub def
-     .5 setlinewidth
-     rad1 rad1  5 add langle radianLine
-     radM langle radianpoint 
-     gsave 
-       angle neg rotate
-       currentpoint /yCenter exch def /xCenter exch def
-       newpath
-       phase (New) eq { xCenter yCenter moonR 0 360 arc fill } if
-       phase (Full) eq { xCenter yCenter moonR 0 360 arc stroke } if
-       % First quarter dark left
-       phase (First) eq { xCenter yCenter moonR 90 270 arc  fill } if
-       % Last quarter dark left
-       phase (Last) eq { xCenter yCenter moonR 270 90 arc  fill } if
+  /langle 450 angle sub def
+  .5 setlinewidth
+  % draw tick mark for POM time
+  ifLunar {
+    rad0 rad0  5 add langle radianLine
+  } {
+    rad1 rad1  5 add langle radianLine
+  } ifelse
+  radM langle radianpoint 
+  gsave 
+    angle neg rotate
+    currentpoint /yCenter exch def /xCenter exch def
+    newpath
+    phase (New) eq { xCenter yCenter moonR 0 360 arc fill } if
+    phase (Full) eq { xCenter yCenter moonR 0 360 arc stroke } if
+    % First quarter dark left
+    phase (First) eq { xCenter yCenter moonR 90 270 arc  fill } if
+    % Last quarter dark left
+    phase (Last) eq { xCenter yCenter moonR 270 90 arc  fill } if
 
-       % Control Point for Bezier, linear from Center
-       /cp moonR 5 div 3 mul def
+    % Control Point for Bezier, linear from Center
+    /cp moonR 5 div 3 mul def
 
-       % Draw Half Circle
-       phase (WaxingCrescent) eq phase (WaxingGibbous) eq or {
-         xCenter yCenter moonR 270 90 arcn } if
-       phase (WaningCrescent) eq phase (WaningGibbous) eq or {
-         xCenter yCenter moonR 270 90 arc } if
+    % Draw Half Circle
+    phase (WaxingCrescent) eq phase (WaxingGibbous) eq or {
+      xCenter yCenter moonR 270 90 arcn } if
+    phase (WaningCrescent) eq phase (WaningGibbous) eq or {
+      xCenter yCenter moonR 270 90 arc } if
 
-       % Bezier Curve Cresent
-       phase (WaningCrescent) eq phase (WaxingGibbous) eq or {
-         xCenter cp sub yCenter cp add % x1 y1
-         xCenter cp sub yCenter cp sub % x2 y2
-         xCenter yCenter moonR sub % x3 y3
-         curveto fill } if
-       phase (WaxingCrescent) eq phase (WaningGibbous) eq or {
-         % Bezier Curve Cresent
-         xCenter cp add yCenter cp add % x1 y1
-         xCenter cp add yCenter cp sub % x2 y2
-         xCenter yCenter moonR sub % x3 y3
-         curveto fill } if
-     grestore
+    % Bezier Curve Cresent
+    phase (WaningCrescent) eq phase (WaxingGibbous) eq or {
+      xCenter cp sub yCenter cp add % x1 y1
+      xCenter cp sub yCenter cp sub % x2 y2
+      xCenter yCenter moonR sub % x3 y3
+      curveto fill } if
+    phase (WaxingCrescent) eq phase (WaningGibbous) eq or {
+      % Bezier Curve Cresent
+      xCenter cp add yCenter cp add % x1 y1
+      xCenter cp add yCenter cp sub % x2 y2
+      xCenter yCenter moonR sub % x3 y3
+      curveto fill } if
+  grestore
 } def %pom
-
-%%EndProcSet
-%%EndProlog
-
-%%BeginSetup
-%%IncludeResources: font Helvetica 
-%%IncludeResources: font Helvetica-Bold
-%  [36 36] PageSize
-%setpagedevice 
-%%EndSetup
 
 %%Page: 1 1
 %  Year in Center
@@ -311,7 +316,7 @@ gsave   % Write Names of Months
   } for
 grestore
 
-%% Loop for every Day 
+%  Loop for every Day 
 %  Draw the Gray boxes first!  (Day of month)
 %  Draw the Black boxes First! for Sat/Sun
 /edge EdgeAngle def % Messy math for edge text
@@ -346,7 +351,7 @@ Dom /dom exch def
 /s2 2 string def  % string for Day of Month
 
 % Make one more trip around the sun, day of week and month
-% Font for Day of Month and Day of week
+% Text for Day of Month and Day of week
 /BabelSans findfont fontSize scalefont setfont
 0 1 days_year { 
   /doy exch def
@@ -357,7 +362,11 @@ Dom /dom exch def
 
   % Draw Lines between days
   .5 setlinewidth
-  rad1 radI edge radianline 
+  ifLunar {
+    rad0 radI edge radianline 
+  } {
+    rad1 radI edge radianline 
+  } ifelse
   % draw lines between Months, Use heavier line, extend past radI
   1 dom eq { 
      1.5 setlinewidth
@@ -394,33 +403,41 @@ Dom /dom exch def
 % This needs to be hear to clean up the halftone boxes for days and Saturday Sunday
 newpath
 1 setlinewidth
+ifLunar {
+  xMid yMid rad0 0 360 arc  stroke
+} if
 xMid yMid rad1 0 360 arc  stroke
 xMid yMid rad2 0 360 arc  stroke
 xMid yMid rad3 0 360 arc  stroke
 
 
 /Lunar {
+  % Add Day of Month for Lunar Calendar
   /edge EdgeAngle dayArc chineseNY mul sub def
   /CenterAngle edge dayArc 2.0 div sub def % center of box, center for text
   /dom 1 def
   /doy 1 def
   /mI 0 def
-  /radC rad2 4 add def
+  /radC rad1 domBaseLine add def
   354 { 
     /xc CenterAngle cos def  /yc CenterAngle sin def
     /plus90 CenterAngle 270 add def
     % Lable Day of Month 
-    /Helvetica findfont fontSize scalefont setfont
     xMid xc radC mul add yMid yc radC mul add plus90 dom s2 cvs AngleText 
-
+    
+    % draw lines between Months, Use heavier line, extend past radI
+    1 dom eq { 
+     1.5 setlinewidth
+     rad0 rad1 edge radianLine
+    } if  
     % Move to next day
     /CenterAngle CenterAngle dayArc sub def
     /edge edge dayArc sub def
     /dom  dom  1 add def   % day of month
-    dom ChineseMonthlen mI get gt { /dom 1 def /mI mI 1 add def} if
+    dom LunarMonthlen mI get gt { /dom 1 def /mI mI 1 add def} if
   } repeat 
-} def
-%% Lunar
+} def % Lunar
+ifLunar {Lunar} if
 
 % 77.29 (Spring Equinox 08:33) event %% Sun Mar 20 08:33:21 2022 
 %168.75 (Summer Soltice 02:13) event %% Tue Jun 21 02:13:56 2022 
