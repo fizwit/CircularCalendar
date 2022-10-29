@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 """ pom.py Phase of Moon
 
@@ -8,7 +8,7 @@
      - Equinox, Soltice
     This data is designed to be used by BigCal Postscript Program
 
-Copyright 2016-2022  John Dey
+Copyright 2016-2023  John Dey
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -32,7 +32,7 @@ import ephem
 import datetime
 import sys
 
-year = '2022'
+year = '2023'
 if int(year) % 4 == 0 and (int(year) % 100 != 0 or int(year) % 400 == 0):
     days_year = 366  # is a leap year
 else:
