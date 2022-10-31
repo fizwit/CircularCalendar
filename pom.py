@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """ pom.py Phase of Moon
 
@@ -23,7 +23,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "John Dey"
 __contact__ = "fizwit@gmail.com"
-__copyright__ = "Copyright 2015-2021"
+__copyright__ = "Copyright 2015-2023"
 __license__ = "GPLv3"
 __date__ = "2021/08/26"
 __version__ = "1.0.1"
@@ -131,7 +131,7 @@ def pom_format(name, date):
     return pom_str
 
 def interpolate_cresent_moon(moons):
-    """ ephem only report 4 phases of the moon, I want eight 
+    """ ephem only reports 4 phases of the moon, I want eight 
     Add Cresent and Gibbos moons between quarters based on angle
     """
     newMoons = []
@@ -140,23 +140,28 @@ def interpolate_cresent_moon(moons):
 
     last = False 
     for phase in moons:
-        fields = phase.split()
+        fields = phase[1].split()
         angle = float(fields[0])
         if last:
-            newAngle = lastAngle + ((angle - lastAngle) / 2.0)
+            diff = angle - lastAngle
+            if diff < 0:
+                diff = 360 + diff
+            newAngle = lastAngle + (diff / 2.0)
+            if newAngle > 360.0:
+                newAngle = newAngle - 360.0
             pom_str = "{:6.2f} ({}) ({}) pom %% ".format(newAngle, newPhases[newP], newPhases[newP])
             newMoons.append(lastr)
             newMoons.append(pom_str)
         else:
             last = True
-        lastr = phase
+        lastr = phase[1]
         lastAngle = angle 
         if fields[1].strip('(') in phases:
             newP = phases.index(fields[1].strip('('))
         else:
             print('Error what phase of the moon is this: {}'.format(fields[1]))
             sys.exit()
-    newMoons.append(phase)
+    newMoons.append(phase[1])
     return newMoons
 
 def get_moons_in_year(year):
@@ -168,32 +173,33 @@ def get_moons_in_year(year):
     """
     moons = []
 
-    date = ephem.Date(datetime.date(year, 1, 1))
-    end = ephem.Date(datetime.datetime(year, 12, 31, 23, 59))
-    while date.datetime().year == year:
+    start = ephem.Date(datetime.date(year-1, 12, 12))
+    end = ephem.Date(datetime.datetime(year+1, 1, 12))
+    date = start
+    while date < end: 
         date = ephem.next_full_moon(date)
         if date < end:
-            moons.append(pom_format('Full Moon', date))
+            moons.append([date, pom_format('Full Moon', date)]) # list of tuple
 
-    date = ephem.Date(datetime.date(year, 1, 1))
-    while date.datetime().year == year:
+    date = start
+    while date < end: 
         date = ephem.next_new_moon(date)
         if date < end:
-            moons.append(pom_format('New Moon', date))
+            moons.append([date, pom_format('New Moon', date)])
 
-    date = ephem.Date(datetime.date(year, 1, 1))
-    while date.datetime().year == year:
+    date = start
+    while date < end:
         date = ephem.next_first_quarter_moon(date)
         if date < end:
-            moons.append(pom_format('First Quarter', date))
+            moons.append([date, pom_format('First Quarter', date)])
 
-    date = ephem.Date(datetime.date(year, 1, 1))
-    while date.datetime().year == year:
+    date = start 
+    while date < end:
         date = ephem.next_last_quarter_moon(date)
         if date < end:
-            moons.append(pom_format('Last Quarter', date))
+            moons.append([date, pom_format('Last Quarter', date)])
 
-    moons.sort(key=lambda x: float(x.split()[0]))
+    moons.sort(key=lambda x: x[0])
     return moons
 
 

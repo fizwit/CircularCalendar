@@ -62,7 +62,7 @@ ifLunar {
 /radM {radO moonR sub } def  % Center of Moon
 
 /city {(Seattle)} def
-/months {[(January) (Febuary) (March)(April) (May) (June) (July) 
+/months {[(January) (February) (March)(April) (May) (June) (July) 
           (August) (September) (October) (November) (December) ]} def
 /dayofweek { [(S) (M) (T) (W) (T) (F) (S)]} def
 /monthlen {[31 28 31 30 31 30 31 31 30 31 30 31 1] } def
@@ -214,13 +214,13 @@ ifLunar {
   gsave  
   450 77.5 neg rotate
   1 1 14 { /index exch def 
-          newpath
-          %xMid yMid hr 36.0 mul  0 360 arc  stroke
-          xMid hr 36.0 mul add yMid moveto
-          0 12 rlineto stroke
-          xMid hr 36.0 mul add yMid 1 sub moveto 
-          Hours index get show
-          /hr hr 1 add def
+    newpath
+    %xMid yMid hr 36.0 mul  0 360 arc  stroke
+    xMid hr 36.0 mul add yMid moveto
+    0 12 rlineto stroke
+    xMid hr 36.0 mul add yMid 1 sub moveto 
+    Hours index get show
+    /hr hr 1 add def
   } for 
   grestore
 } def % ruler
@@ -229,11 +229,11 @@ ifLunar {
 /SolEqn { 1 setlinewidth SunRiseSet} def
 /Sol { .25 setlinewidth SunRiseSet} def
 /SunRiseSet {
-    /set exch  36.0 mul rad3 exch sub def
-    /rise exch 36.0 mul rad3 exch sub def
-    /day_num exch def
-    /angle 450 day_num dayArc mul half_dayArc sub sub def
-    rise set angle radianLine
+  /set exch  36.0 mul rad3 exch sub def
+  /rise exch 36.0 mul rad3 exch sub def
+  /day_num exch def
+  /angle 450 day_num dayArc mul half_dayArc sub sub def
+  rise set angle radianLine
 } def %SunRiseSet
 
 % pom Phase of Moon (new full)Draw New Moon (Black)
@@ -369,9 +369,9 @@ Dom /dom exch def
   } ifelse
   % draw lines between Months, Use heavier line, extend past radI
   1 dom eq { 
-     1.5 setlinewidth
-     rad1 rad3 20 sub edge radianLine
-     } if  
+    1.5 setlinewidth
+    rad1 rad3 20 sub edge radianLine
+    } if  
 
   % Lable Day of Month
   xMid xc radD mul add yMid yc radD mul add plus90 dom s2 cvs AngleText 
@@ -910,4 +910,3 @@ ifLunar {Lunar} if
 showpage
 
 %%EOF
-

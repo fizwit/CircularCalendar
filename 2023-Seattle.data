@@ -1,7 +1,13 @@
- 77.53 (Spring Equinox 14:24) event %% Mon Mar 20 14:24:15 2023 
-168.99 (Summer Soltice 07:57) event %% Wed Jun 21 07:57:55 2023 
-261.38 (Fall Equinox 23:50) event %% Fri Sep 22 23:50:00 2023 
-349.96 (Winter Soltice 19:27) event %% Thu Dec 21 19:27:09 2023 
+% 77.53 (Spring Equinox 14:24) event %% Mon Mar 20 14:24:15 2023 
+%168.99 (Summer Soltice 07:57) event %% Wed Jun 21 07:57:55 2023 
+%261.38 (Fall Equinox 23:50) event %% Fri Sep 22 23:50:00 2023 
+%349.96 (Winter Soltice 19:27) event %% Thu Dec 21 19:27:09 2023 
+%344.26 (Last Quarter 00:56) (Last) pom %% Fri Dec 16 00:56:03 2022Z
+%347.74 (WaningCrescent) (WaningCrescent) pom %% 
+%351.22 (New Moon 02:16) (New) pom %% Fri Dec 23 02:16:51 2022Z
+%354.49 (WaxingCrescent) (WaxingCrescent) pom %% 
+%357.76 (First Quarter 17:20) (First) pom %% Thu Dec 29 17:20:30 2022Z
+  1.66 (WaxingGibbous) (WaxingGibbous) pom %% 
   5.56 (Full Moon 15:07) (Full) pom %% Fri Jan  6 15:07:52 2023Z
   9.57 (WaningGibbous) (WaningGibbous) pom %% 
  13.58 (Last Quarter 18:10) (Last) pom %% Sat Jan 14 18:10:17 2023Z
@@ -99,6 +105,10 @@
 347.62 (First Quarter 10:39) (First) pom %% Tue Dec 19 10:39:11 2023Z
 351.19 (WaxingGibbous) (WaxingGibbous) pom %% 
 354.77 (Full Moon 16:33) (Full) pom %% Tue Dec 26 16:33:10 2023Z
+358.78 (WaningGibbous) (WaningGibbous) pom %% 
+%  2.79 (Last Quarter 19:30) (Last) pom %% Wed Jan  3 19:30:24 2024Z
+%  6.41 (WaningCrescent) (WaningCrescent) pom %% 
+% 10.03 (New Moon 03:57) (New) pom %% Thu Jan 11 03:57:21 2024Z
 1 7.9525 16.4806 Sol %% Sun Rise/Set: Jan-01 07:57:09 16:28:50 PST
 2 7.9519 16.4969 Sol %% Sun Rise/Set: Jan-02 07:57:07 16:29:49 PST
 3 7.9506 16.5139 Sol %% Sun Rise/Set: Jan-03 07:57:02 16:30:50 PST
