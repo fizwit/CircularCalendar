@@ -1,3 +1,7 @@
+%%  77.02 (Spring Equinox 02:01) event %% Mar-20 02:01 
+%% 168.49 (Summer Soltice 19:42) event %% Jun-20 19:42 
+%% 260.86 (Fall Equinox 11:19) event %% Sep-22 11:19 
+%% 349.44 (Winter Soltice 07:02) event %% Dec-21 07:02 
   2.43 (WaxingCrescent) (WaxingCrescent) pom %% 
   5.92 (First Quarter 23:56) (First) pom %% 2025  Jan 6 23:56
   9.34 (WaxingGibbous) (WaxingGibbous) pom %% 
@@ -175,7 +179,7 @@
 76 6.2850 18.3114 Sol %% Sun Rise/Set: Mar-17 06:17:06 18:18:41 PST
 77 6.2514 18.3353 Sol %% Sun Rise/Set: Mar-18 06:15:05 18:20:07 PST
 78 6.2178 18.3594 Sol %% Sun Rise/Set: Mar-19 06:13:04 18:21:34 PST
-79 6.1839 18.3833 Sol %% Sun Rise/Set: Mar-20 06:11:02 18:23:00 PST
+79 6.1839 18.3833 SolEqn %% Sun Rise/Set: Mar-20 06:11:02 18:23:00 PST
 80 6.1503 18.4072 Sol %% Sun Rise/Set: Mar-21 06:09:01 18:24:26 PST
 81 6.1164 18.4311 Sol %% Sun Rise/Set: Mar-22 06:06:59 18:25:52 PST
 82 6.0825 18.4550 Sol %% Sun Rise/Set: Mar-23 06:04:57 18:27:18 PST
@@ -267,7 +271,7 @@
 168 4.1778 20.1694 Sol %% Sun Rise/Set: Jun-17 04:10:40 20:10:10 PST
 169 4.1794 20.1750 Sol %% Sun Rise/Set: Jun-18 04:10:46 20:10:30 PST
 170 4.1814 20.1794 Sol %% Sun Rise/Set: Jun-19 04:10:53 20:10:46 PST
-171 4.1844 20.1836 Sol %% Sun Rise/Set: Jun-20 04:11:04 20:11:01 PST
+171 4.1844 20.1836 SolEqn %% Sun Rise/Set: Jun-20 04:11:04 20:11:01 PST
 172 4.1881 20.1867 Sol %% Sun Rise/Set: Jun-21 04:11:17 20:11:12 PST
 173 4.1922 20.1894 Sol %% Sun Rise/Set: Jun-22 04:11:32 20:11:22 PST
 174 4.1972 20.1911 Sol %% Sun Rise/Set: Jun-23 04:11:50 20:11:28 PST
@@ -361,7 +365,7 @@
 262 5.8722 18.2097 Sol %% Sun Rise/Set: Sep-19 05:52:20 18:12:35 PST
 263 5.8947 18.1756 Sol %% Sun Rise/Set: Sep-20 05:53:41 18:10:32 PST
 264 5.9172 18.1414 Sol %% Sun Rise/Set: Sep-21 05:55:02 18:08:29 PST
-265 5.9397 18.1072 Sol %% Sun Rise/Set: Sep-22 05:56:23 18:06:26 PST
+265 5.9397 18.1072 SolEqn %% Sun Rise/Set: Sep-22 05:56:23 18:06:26 PST
 266 5.9625 18.0731 Sol %% Sun Rise/Set: Sep-23 05:57:45 18:04:23 PST
 267 5.9850 18.0389 Sol %% Sun Rise/Set: Sep-24 05:59:06 18:02:20 PST
 268 6.0078 18.0047 Sol %% Sun Rise/Set: Sep-25 06:00:28 18:00:17 PST
@@ -451,7 +455,7 @@
 352 7.8806 16.3250 Sol %% Sun Rise/Set: Dec-18 07:52:50 16:19:30 PST
 353 7.8906 16.3317 Sol %% Sun Rise/Set: Dec-19 07:53:26 16:19:54 PST
 354 7.9000 16.3389 Sol %% Sun Rise/Set: Dec-20 07:54:00 16:20:20 PST
-355 7.9086 16.3472 Sol %% Sun Rise/Set: Dec-21 07:54:31 16:20:50 PST
+355 7.9086 16.3472 SolEqn %% Sun Rise/Set: Dec-21 07:54:31 16:20:50 PST
 356 7.9164 16.3561 Sol %% Sun Rise/Set: Dec-22 07:54:59 16:21:22 PST
 357 7.9236 16.3661 Sol %% Sun Rise/Set: Dec-23 07:55:25 16:21:58 PST
 358 7.9300 16.3764 Sol %% Sun Rise/Set: Dec-24 07:55:48 16:22:35 PST

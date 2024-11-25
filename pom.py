@@ -43,8 +43,7 @@ dayArc = 360.0 / float(days_year)
 epoc = ephem.Date("{}/01/01".format(year))  # Beginning of year
 zone = ZoneInfo('America/Los_Angeles')  # With Daylight Savings
 zone = ZoneInfo('Etc/GMT+8')
-city = 'Seattle'
-# city = 'Los Angeles'
+
 
 SolEqn = []
 
@@ -58,19 +57,18 @@ pt.horizon = '-0:34'
 
 
 def sun_rise_set(city, year):
-    '''
-    Calculate sun rise and set for whole year
-    '''
-    sea = ephem.city(city)
-    sea = pt
-    sea.date = ephem.Date("{}/01/01 12:00:00".format(year))
+    """
+    Calculate sun rise and set for whole year.
+    <city> an ephem city object
+    """
+    city.date = ephem.Date("{}/01/01 12:00:00".format(year))
     sun = ephem.Sun()
     earlest_dec = 24.0
     latest_dec = 0.0
     longest_len = 8.0
     for day in range(1, days_year + 1):
-        sunrise = sea.next_rising(sun)
-        sunset = sea.next_setting(sun)
+        sunrise = city.next_rising(sun)
+        sunset = city.next_setting(sun)
         sol = ephem.to_timezone(sunrise, zone)
         local_set = ephem.to_timezone(sunset, zone)
         rise_dec = float(sol.hour) + (float(sol.minute)/60.0) + (float(sol.second)/60.0 / 60.0)
@@ -92,7 +90,7 @@ def sun_rise_set(city, year):
             label = 'Sol'
         print("{:d} {:6.4f} {:7.4f} {} %% Sun Rise/Set: {} {} PST".format(
               day, rise_dec, set_dec, label, sol.strftime("%b-%d %H:%M:%S"), local_set.strftime("%H:%M:%S")))
-        sea.date += 1
+        city.date += 1
     sys.stderr.write("Ealest Sun Rise: {}\n".format(earlest_sol.strftime("%b-%d %H:%M:%S")))
     sys.stderr.write("Longest Day      {} {}\n".format(longest_day.strftime("%b-%d %H:%M:%S"),
                      longest_set.strftime(" %H:%M:%S")))
@@ -124,7 +122,7 @@ def sol(year):
 
     for day in events:
         (angle, time_str, local, dayofyear) = sol_angle_localtime(day[1])
-        print("{:6.2f} ({} {}) event %% {} ".format(angle, day[0], time_str, local))
+        print("%% {:6.2f} ({} {}) event %% {} ".format(angle, day[0], time_str, local))
         SolEqn.append(dayofyear)
 
 def interpolate_cresent_moon(moons):
@@ -208,10 +206,14 @@ def get_moons_in_year(year):
     return moons
 
 
-# sol(year)
+sol(year)
 pom = get_moons_in_year(int(year))
 MoonPhases = interpolate_cresent_moon(pom)
 for phase in MoonPhases:
     print(phase)
+
+#  'Los Angeles'
+city = ephem.city('Seattle')
+# city = pt
 sun_rise_set(city, int(year))
 print("showpage\n\n%%EOF\n")
