@@ -21,5 +21,33 @@ from pom.py is added to the bottom of the Postscript files.  The data is generat
 for Seattle. To localize the calander the city information can be changed in
 pom.py
 
+### Lunar Version
+An extra ring for Day of Month is added for the Chinese calender. IE, Feb 17, is Chinese New
+Year in 2026. Set isLunar to true, and adjust days of month in `LunarMonthlen`.
+
+### Dark Mode
+Create the calender with Black background.  Set `ifDark` to `true`.
+
 ### Fonts
 Helvitica is used for the Year and for the names of Months. Day of month is set with BabelSans.
+
+### Release Nodes
+
+ - 2.1.0 Jan 2026 Add Dark mode. For Dark mode radian lines are much thicker. Increate size of moon 20%
+   increate Size of Year in center. Increase font size for `Designed by John Dey`
+ - Add gray/white alternating months to Lunar calendar.
+
+### Reference
+
+US Naval Observtory Data
+[Navy](https://aa.usno.navy.mil/data/RS_OneYear)
+
+This is good site which had UTC and Los Angles in the same table.
+
+```
+https://www.calendar-12.com/moon_phases/2025#google_vignette
+https://www.timeanddate.com/moon/phases/?year=2024
+```
+
+### PostScript References
+[PS Gide](http://materials.ucsd.edu/doc/ps_guide.pdf)
