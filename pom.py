@@ -23,7 +23,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "John Dey"
 __contact__ = "fizwit@gmail.com"
-__copyright__ = "Copyright 2015-2023"
+__copyright__ = "Copyright 2015-2026"
 __license__ = "GPLv3"
 __date__ = "2021/08/26"
 __version__ = "1.0.1"
@@ -33,20 +33,17 @@ import datetime
 import sys
 from zoneinfo import ZoneInfo
 import calendar
+import argparse
 
-year = '2025'
-if int(year) % 4 == 0 and (int(year) % 100 != 0 or int(year) % 400 == 0):
-    days_year = 366  # is a leap year
-else:
-    days_year = 365
-dayArc = 360.0 / float(days_year)
-epoc = ephem.Date("{}/01/01".format(year))  # Beginning of year
+
 zone = ZoneInfo('America/Los_Angeles')  # With Daylight Savings
 zone = ZoneInfo('Etc/GMT+8')
+days_year = 365
 
 
 SolEqn = []
 
+# ephem knows about Seattle and other Major city's but not Port Townsend
 pt = ephem.Observer()
 pt.name ='Port Townsend'
 pt.lat = '48.0'  # 49 7' 2"
@@ -114,10 +111,11 @@ def sol(year):
         Output format
         77.89 (Spring Equinox 04:30) event %% 2016/3/20 04:30:03Z
     """
-    events = [('Spring Equinox', ephem.next_equinox(year)),
-              ('Summer Soltice', ephem.next_solstice(year)),
-              ('Fall Equinox', ephem.next_equinox(year + '/6/1')),
-              ('Winter Soltice', ephem.next_solstice(year + '/9/1')),
+    dayArc = 360.0 / float(days_year)
+    events = [('Spring Equinox', ephem.next_equinox(f"{year}/1/1")),
+              ('Summer Soltice', ephem.next_solstice(f"{year}/3/1")),
+              ('Fall Equinox', ephem.next_equinox(f"{year}/6/1")),
+              ('Winter Soltice', ephem.next_solstice(f"{year}/9/1")),
     ]
 
     for day in events:
@@ -158,7 +156,7 @@ def interpolate_cresent_moon(moons):
             sys.exit()
     return newMoons
 
-def pom_format(name, ephem_date):
+def pom_format(name, ephem_date, Year):
     """
     convert ephem_date to angle
 
@@ -168,6 +166,8 @@ def pom_format(name, ephem_date):
     PostScript Format: 4.11 (Full Moon 04:53) (Full) pom
     PostScript commands:  [Full, New, First, Last]
     """
+    dayArc = 360.0 / float(days_year)
+    epoc = ephem.Date(f"{Year}/01/01")  # Beginning of year
     ephem_date = ephem.Date(ephem_date + ephem.second * 30) # round time to nearest minute
     (year, month, day, hour, minute, seconds) = ephem_date.tuple()
     time_str = "{:02d}:{:02d}".format(hour, minute)
@@ -176,7 +176,7 @@ def pom_format(name, ephem_date):
     Month = calendar.month_abbr[month]
     formated_datetime = f"{year}  {Month} {day} {hour}:{minute:02d}"
     (cmd, des) = name.split()
-    pom_str = "{:6.2f} ({} {}) ({}) pom %% {}".format(angle, name, time_str, cmd, formated_datetime)
+    pom_str = f"{angle:.2f} ({name} {time_str}) ({cmd}) pom %% {formated_datetime}"
     return pom_str
 
 def get_moons_in_year(year):
@@ -195,25 +195,42 @@ def get_moons_in_year(year):
     date = start
     while date < end: 
         date = ephem.next_new_moon(date)
-        moons.append([date, pom_format('New Moon', date)])
+        moons.append([date, pom_format('New Moon', date, year)])
         date = ephem.next_first_quarter_moon(date)
-        moons.append([date, pom_format('First Quarter', date)])
+        moons.append([date, pom_format('First Quarter', date, year)])
         date = ephem.next_full_moon(date)
-        moons.append([date, pom_format('Full Moon', date)]) # list of tuple
+        moons.append([date, pom_format('Full Moon', date, year)]) # list of tuple
         date = ephem.next_last_quarter_moon(date)
-        moons.append([date, pom_format('Last Quarter', date)])
+        moons.append([date, pom_format('Last Quarter', date, year)])
 
     return moons
 
+def create_parser():
+    parser = argparse.ArgumentParser(description='Pom Phase of Moon Calculator')
+    parser.add_argument( '--year', type=int, required=True, help='Year (e.g., 2026)')
+    parser.add_argument( '--location', type=str, required=True, help='Location (e.g., Seattle)')
+    return parser
 
-sol(year)
-pom = get_moons_in_year(int(year))
-MoonPhases = interpolate_cresent_moon(pom)
-for phase in MoonPhases:
-    print(phase)
 
-#  'Los Angeles'
-city = ephem.city('Seattle')
-# city = pt
-sun_rise_set(city, int(year))
-print("showpage\n\n%%EOF\n")
+if __name__ == "__main__":
+    parser = create_parser()
+    args = parser.parse_args()
+    
+    print(f"%% Year: {args.year}")
+    print(f"%% Location: {args.location}")
+    year = int(args.year)
+    if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0):
+        days_year = 366  # is a leap year
+    sol(year)
+    pom = get_moons_in_year(year)
+    MoonPhases = interpolate_cresent_moon(pom)
+    for phase in MoonPhases:
+        print(phase)
+
+    #  'Los Angeles'
+    if args.location == 'Seattle':
+        city = ephem.city('Seattle')
+    elif args.location == 'pt':
+        city = pt
+    sun_rise_set(city, year)
+    print("showpage\n\n%%EOF\n")
