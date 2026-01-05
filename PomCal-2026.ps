@@ -23,15 +23,16 @@
 %%BeginProlog
 %%BeginProcSet: (John Dey Cir Cal) 2.1 0  
 
+/version {(2.1.0)} def 
 /year {(2026) } def
 /days_yearF {365.0} def
 /days_year {365} def
 /feb {28} def  % Number of days in February
 /MI   {0} def  % Month Index 0=Jan, 
 /DowI {4} def  % Day Of week Index for 1st day of the year
-               % 0-Sun, 1-Mon, 6=Sa 
+               % 0-Sun, 1-Mon, 6=Sat
 /Dom  {1} def  % Day Of Month 1=1,
-                 % Jan Feb Mar Apr Apr May Jun Jul Aug Sep Oct Nov Dec
+               % Jan Feb Mar Apr Apr May Jun Jul Aug Sep Oct Nov Dec
 /ifDark { true } def
 /ifLunar { false } def
 % first element of `LunarMonthlen` must be set even if its in Feb
@@ -47,7 +48,7 @@
 /domBaseLine 6 def
 /dayArc {360.0 days_yearF div} def
 /half_dayArc {dayArc 2.0 div} def
-/EdgeAngle 450 def          % Messy math for edge text
+/EdgeAngle 450 def          % Messy math for edge text fudge
 /moonR {30} def
 /radO {paperWidth 2.0 div 72 sub} def
 ifLunar {
@@ -67,16 +68,16 @@ ifLunar {
 /city {(Seattle)} def
 /latatude { (47\26036'28") }def
 /cityMargin { 108 } def
-/leftedge { 36 72 mul } def 
 
 /months {[(January) (February) (March)(April) (May) (June) (July) 
           (August) (September) (October) (November) (December) ]} def
 /dayofweek { [(S) (M) (T) (W) (T) (F) (S)]} def
 /monthlen {[31 feb 31 30 31 30 31 31 30 31 30 31 1] } def
 
+% Used for ?? 
 /tick {  % create tick mark at x y tick
   .5 setlinewidth
-  ifDark {1}{0} ifelse setgray
+  ifDark {1 setgray 0 setlinecab}{0} ifelse setgray
   6 sub moveto
   0 12 rlineto
   gsave stroke grestore
@@ -193,7 +194,6 @@ ifLunar {
 
 /radianline {
   gsave 
-  ifDark {1}{0} ifelse setgray 
   radianLine
   grestore
 } def % radianline
@@ -203,7 +203,7 @@ ifLunar {
   % ifDark then black line
   /lweight exch def
   gsave 
-  ifDark {0}{1} ifelse setgray  
+  1 setgray  
   0 setlinecap  % butt caps
   lweight (norm) eq { 
       .5 setlinewidth 
@@ -340,6 +340,11 @@ ifDark {
   0 paperHeight rlineto
   paperWidth neg 0 rlineto
   closepath 0 setgray fill
+    newpath
+    1 setgray
+    xMid yMid rad1 0 360 arc  fill 
+    0 setgray
+    xMid yMid rad3 0 360 arc  fill
 } if
 
 %  Year in Center
@@ -353,19 +358,19 @@ xMid half sub 7.7 add yMid 12 sub moveto
 
 % Draw City Name
 /drawCityName {
-    /HelveticaLTPro-Bold findfont 94 scalefont setfont
+    /HelveticaLTPro-Bold findfont 135 scalefont setfont
     /baseLine exch def
     /width city stringwidth pop def
-    leftedge width sub 108 sub
-      baseLine 64  add moveto city show
-    /HelveticaLTPro-Bold findfont 70 scalefont setfont
+    paperWidth width sub 108 sub
+      baseLine 82   add moveto city show
+    /HelveticaLTPro-Bold findfont 100 scalefont setfont
     /width latatude stringwidth pop def
-    leftedge width sub 108 sub 3 add
+    paperWidth width sub 108 sub 3 add
       baseLine moveto latatude show
 } def
 cityMargin drawCityName
 
-%xMid yMid tick
+% xMid yMid tick
 newpath
 
 % Place Month Text 
@@ -401,14 +406,14 @@ ifLunar { Lunar } if
   doy 2 mod 1 eq 
    {xMid yMid rad2 edge edge dayArc sub arcn
     xMid yMid rad3 edge dayArc sub edge arc 
-    .85 setgray closepath fill ifDark {1}{0} ifelse setgray
+    ifDark {0}{.85} ifelse setgray closepath fill % ifDark {1}{0} ifelse setgray
    } if
-   % reverse Text Boxes for Sat Sun 
+   % Black Text Boxes for Sat Sun XX 
    newpath
    0 dowI 7 mod eq 6 dowI 7 mod eq or
-   {xMid yMid rad1 edge edge dayArc sub arcn
+   {xMid yMid rad1 .5 add edge edge dayArc sub arcn
      xMid yMid rad2 edge dayArc sub edge arc
-     ifDark {.85}{0} ifelse setgray closepath fill 
+     0 setgray closepath fill 
    } if
    % Move to next day
    /edge edge dayArc sub def
@@ -433,30 +438,36 @@ Dom /dom exch def
   /yc CenterAngle sin def
   /plus90 CenterAngle 270 add def
   /s2 2 string def  % string for Day of Month
-  ifDark {1}{0} ifelse setgray
+  % ifDark {1}{0} ifelse setgray
 
   % Draw Lines between days
   .5 setlinewidth
+  0 setgray
   ifLunar {
     rad0 radI edge radianline 
   } {
-    rad1 radI edge radianline 
+    rad1 .5 add radI edge radianline 
   } ifelse
   % draw lines between Months, Use heavier line, extend past radI
   1 dom eq { 
+     ifDark {1}{0} ifelse setgray
      1.5 setlinewidth
      rad1 rad3 20 sub edge radianLine
      } if  
 
-  % Lable Day of Month 1-31 
-  doy 2 mod 1 eq { ifDark {0 setgray} if } if
+  % Lable Day of Month 1-31 Normal Black - Dark Mode Black/White 
+  doy 2 mod 1 eq 
+      { ifDark {1 setgray}{0 setgray} ifelse }
+      { ifDark {0 setgray}{0 setgray} ifelse }
+  ifelse
   xMid xc radD mul add yMid yc radD mul add plus90 dom s2 cvs AngleText 
 
+  % Draw Day of Week 
   % Setgray to White if Sat Sun 
   newpath
   0 dowI 7 mod eq 6 dowI 7 mod eq or 
-    {ifDark {0}{1} ifelse setgray }
-    {ifDark {1}{0} ifelse setgray } ifelse  
+    {1 setgray }
+    {0 setgray } ifelse  
 
   % Draw Day of Week 
   xMid xc radW mul add yMid yc radW mul add plus90 
@@ -475,17 +486,27 @@ Dom /dom exch def
   dom monthlen mI get gt { /dom 1 def /mI mI 1 add def} if
 } for
 
-% Outer Arcs for Months, Boxes, Days of Month, Days of Week
-% This needs to be hear to clean up the halftone boxes for days and Saturday Sunday
+% Draw the Outer Arcs for Months, Boxes, Days of Month, Days of Week
+% This needs to be done last to clean up the halftone boxes for days and Saturday Sunday
 newpath
 1 setlinewidth
 ifLunar {
   xMid yMid rad0 0 360 arc  stroke
 } if
-ifDark {1}{0} ifelse setgray
-xMid yMid rad1 0 360 arc  stroke
-xMid yMid rad2 0 360 arc  stroke
-xMid yMid rad3 0 360 arc  stroke
+ifDark {  
+    0 setgray % Black in the middle
+    xMid yMid rad2 0 360 arc  stroke
+    rad1 radI 450 radianline   % Hack for 2026 Dark mode
+    %1 setgray % Draw outer Lines in White
+    %xMid yMid rad1 0 360 arc  stroke
+    %xMid yMid rad3 0 360 arc  stroke
+}
+{ 
+    0 setgray
+    xMid yMid rad1 0 360 arc  stroke
+    xMid yMid rad2 0 360 arc  stroke
+    xMid yMid rad3 0 360 arc  stroke
+} ifelse
 
 
 %%  77.25 (Spring Equinox 07:45) event %% Mar-20 07:45 

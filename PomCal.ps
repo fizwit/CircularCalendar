@@ -1,0 +1,510 @@
+%!PS-Adobe
+%%Creator: John Dey Copyright 2023, 2024, 2025, 2026
+%%Title: Solar Lunar Circular Calendar
+%%CreationDate: Jan 2015
+%%Copyright: 2015-202n John Dey
+%%+    This program is free software: you can redistribute it and/or modify
+%%+    it under the terms of the GNU General Public License as published by
+%%+    the Free Software Foundation, either version 3 of the License, or
+%%+    (at your option) any later version.
+%%+
+%%+    This program is distributed in the hope that it will be useful,
+%%+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%%+    GNU General Public License for more details.
+%%+
+%%+    You should have received a copy of the GNU General Public License
+%%+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+%%Version: 2.0 0
+%%Pages: 1
+%%BoundingBox: 72 72 2522 2522   % 1 in smaller than 36x36
+%%EndComments
+
+%%BeginProlog
+%%BeginProcSet: (John Dey Cir Cal) 2.1 0  
+
+/version {(2.1.0)} def 
+/year {(2026) } def
+/days_yearF {365.0} def
+/days_year {365} def
+/feb {28} def  % Number of days in February
+/MI   {0} def  % Month Index 0=Jan, 
+/DowI {4} def  % Day Of week Index for 1st day of the year
+               % 0-Sun, 1-Mon, 6=Sat
+/Dom  {1} def  % Day Of Month 1=1,
+               % Jan Feb Mar Apr Apr May Jun Jul Aug Sep Oct Nov Dec
+/ifDark { true } def
+/ifLunar { false } def
+% first element of `LunarMonthlen` must be set even if its in Feb
+/LunarMonthlen {[30 29 30 29 29 30 29 29 30 30 30]} def
+/chineseNY {47} def % Day number for Chinese New Year. Jan 25 = 24, Feb 5th = 35 
+/inch {72.0 mul } def
+/paperWidth  {36 inch } def
+/paperHeight {36 inch } def
+ 
+/xMid {paperWidth 2 div } def
+/yMid {paperHeight 2 div } def
+/fontSize 16 def
+/domBaseLine 6 def
+/dayArc {360.0 days_yearF div} def
+/half_dayArc {dayArc 2.0 div} def
+/EdgeAngle 450 def          % Messy math for edge text fudge
+/moonR {30} def
+/radO {paperWidth 2.0 div 72 sub} def
+ifLunar {
+  /rad0 { radO moonR 2 mul 10 add  sub} def
+  /rad1 { rad0 24 sub} def
+}{
+  /rad1 { radO moonR 2 mul 10 add  sub} def
+} ifelse
+/rad2 { rad1 24 sub} def
+/rad3 { rad2 24 sub } def
+/radI { rad3 } def
+/rad6 { radI 72 sub 10 sub} def  %% 72 is better
+/radD { rad3 domBaseLine add } def   % Day of Month 
+/radW { rad2 domBaseLine add } def   % Day of Week
+/radM {radO moonR sub } def  % Center of Moon
+
+/city {(Seattle)} def
+/latatude { (47\26036'28") }def
+/cityMargin { 108 } def
+
+/months {[(January) (February) (March)(April) (May) (June) (July) 
+          (August) (September) (October) (November) (December) ]} def
+/dayofweek { [(S) (M) (T) (W) (T) (F) (S)]} def
+/monthlen {[31 feb 31 30 31 30 31 31 30 31 30 31 1] } def
+
+% Used for ?? 
+/tick {  % create tick mark at x y tick
+  .5 setlinewidth
+  ifDark {1 setgray 0 setlinecab}{0} ifelse setgray
+  6 sub moveto
+  0 12 rlineto
+  gsave stroke grestore
+  -6 -6 rmoveto
+  12 0 rlineto stroke
+} def
+
+/forall { pstack()= forall } bind def
+
+% circletext from Adobe Cook Book (Blue Book)
+% john dey 2015 Dict commands have been removed to make
+% compatable with DSC 3 Prolog 
+
+% ‘‘outsidecircletext’’ takes four arguments: the string to
+% show, the point size of the font to use, the angle around
+% which the text should be centered, and the radius of the
+% circular arc. It assumes that the center of the circle is at (0,0)
+
+%%-------------------
+/outsidecircletext { 
+  /radius exch def
+  /centerangle exch def
+  /ptsize exch def
+  /str exch def
+  /xradius radius ptsize 4 div add def
+    gsave 
+    centerangle str findhalfangle add rotate 
+    str
+      { /charcode exch def
+        ( ) dup 0 charcode put outsideplacechar
+      } forall
+    grestore
+} def
+
+/insidecircletext { 
+  /radius exch def /centerangle exch def
+  /ptsize exch def /str exch def
+
+  /xradius radius ptsize 3 div sub def
+  gsave
+    centerangle str findhalfangle sub rotate
+    str
+      { /charcode exch def
+        () dup 0 charcode put insideplacechar
+      } forall
+    grestore
+} def
+
+%%/circtextdict {16 dict} def
+/findhalfangle { 
+  stringwidth pop 2 div
+  2 xradius mul pi mul div 360 mul
+} def
+
+/outsideplacechar { 
+  /char exch def
+  /halfangle char findhalfangle def
+  gsave
+    halfangle neg rotate
+    radius 0 translate
+    -90 rotate 
+    char stringwidth pop 2 div neg 0 moveto 
+    char show
+  grestore
+  halfangle 2 mul neg rotate
+} def
+
+/insideplacechar { 
+  /char exch def
+  /halfangle char findhalfangle def
+  gsave
+    halfangle rotate
+    radius 0 translate
+    90 rotate
+    char stringwidth pop 2 div neg 0 moveto
+    char show
+    grestore
+    halfangle 2 mul rotate
+} def
+/pi {3.1415923} def
+% End Circle Text
+%-------------------
+
+/AngleText { % x,y,angle,text
+   /text exch def
+   /rot exch def
+   /y exch def
+   /x exch def
+   /shift text stringwidth pop 2 div neg def
+   x y moveto
+   gsave
+    rot rotate
+    shift 0 rmoveto
+    text show
+   grestore
+} def
+
+/radianpoint {  % move to angle and radius
+  /Rangle exch def
+  /Radius exch def
+  xMid Rangle cos Radius mul add
+  yMid Rangle sin Radius mul add moveto
+} def
+
+/radianLine {
+  /Rangle exch def
+  /insideR exch def
+  /outsideR exch def
+  xMid Rangle cos insideR mul add
+  yMid Rangle sin insideR mul add moveto
+  xMid Rangle cos outsideR mul add
+  yMid Rangle sin outsideR mul add lineto stroke
+} def
+
+/radianline {
+  gsave 
+  radianLine
+  grestore
+} def % radianline
+
+% Used to seperate Saturday Sunday
+/radianlinewhite { 
+  % ifDark then black line
+  /lweight exch def
+  gsave 
+  1 setgray  
+  0 setlinecap  % butt caps
+  lweight (norm) eq { 
+      .5 setlinewidth 
+  } if
+  lweight (thick) eq { 
+      1.5 setlinewidth 
+  } if
+  radianLine
+  grestore 
+} def %radianLineWhite
+  
+% Lunar Calendar in outside ring
+/Lunar {
+  /BabelSans findfont fontSize scalefont setfont
+  /s2 2 string def  % string for Day of Month
+  % Add Day of Month for Lunar Calendar
+  /edge EdgeAngle dayArc chineseNY mul sub def
+  /CenterAngle edge dayArc 2.0 div sub def % center of box, center for text
+  /dom 1 def
+  /doy 1 def
+  /mI 0 def
+  /radC rad1 domBaseLine add def
+  %% Loop minus the Lunar New Year
+  %% 364 - 48 = 317
+  days_year chineseNY sub  {
+    /xc CenterAngle cos def  /yc CenterAngle sin def
+    /plus90 CenterAngle 270 add def
+    % Alternate Month in Gray
+    mI 2 mod 0 eq
+    {newpath .85 setgray
+     xMid yMid rad0 edge edge dayArc sub arcn
+     xMid yMid rad1 edge dayArc sub edge arc
+     closepath fill 0 setgray
+    } if
+
+    % Lable Day of Month 
+    xMid xc radC mul add yMid yc radC mul add plus90 dom s2 cvs AngleText 
+    
+    % Move to next day
+    /CenterAngle CenterAngle dayArc sub def
+    /edge edge dayArc sub def
+    /dom  dom  1 add def   % day of month
+    dom LunarMonthlen mI get gt { /dom 1 def /mI mI 1 add def} if
+  } repeat 
+} def % Lunar
+
+% Draw SunRise SunSet lines
+/SolEqn { ifDark {3}{1} ifelse setlinewidth SunRiseSet} def
+/Sol { ifDark {1.5}{.25} ifelse setlinewidth SunRiseSet} def
+/SunRiseSet {
+    /set exch  36.0 mul rad3 exch sub def
+    /rise exch 36.0 mul rad3 exch sub def
+    /day_num exch def
+    /angle 450 day_num dayArc mul half_dayArc sub sub def
+    rise set angle radianLine
+} def %SunRiseSet
+
+% pom Phase of Moon 
+%                  light                 Dark
+% (Full)           Circle/line           White/fill 
+% (WaningGibbous)  right/cres/Back/fill  left/white/fill 
+% (Last)           right/black/fill      left/white/fill
+% (WaningCrescent) right/gib/black/fill  left/cres/white/fill 
+% (New)            Black/Solid           White/Circle 
+% (WaxingCrescent) left/Gib/black        right/cres/white
+% (First)          left/black/fill       right/white/fill 
+% (WaxingGibbous)  left/cres/black/fill  right/gib/white/fill 
+% 
+/pom {
+  /phase exch def
+  /text exch def
+  /angle exch def % 450 exch sub def
+
+  ifDark 
+     {1 setgray 1.5 setlinewidth}   % Dark Mode: Draw with White
+     {0 setgray .5 setlinewidth}  % Normal Mode: Draw with Black
+  ifelse
+  /langle 450 angle sub def
+  % draw tick mark for POM time
+  ifLunar {
+    rad0 rad0  5 add langle radianLine
+  } {
+    rad1 rad1  5 add langle radianLine
+  } ifelse
+  radM langle radianpoint 
+  % First/Last Quarter are filled half circles
+  /leftQuarter {xCenter yCenter moonR 270 90 arc fill } def
+  /rightQuarter {xCenter yCenter moonR 90 270 arc fill } def
+  % Draw Half Circle
+  /rightHalf { xCenter yCenter moonR 270 90 arc } def 
+  /leftHalf { xCenter yCenter moonR 270 90 arcn } def 
+  % Bezier Curve to create Cresent
+  % Left Arc
+  % Control Point for Bezier, linear from Center
+  /cp moonR 5 div 3 mul def
+  /leftCresent {
+    xCenter cp sub yCenter cp add % x1 y1
+    xCenter cp sub yCenter cp sub % x2 y2
+    xCenter yCenter moonR sub % x3 y3
+    curveto fill } def 
+  % Bezier Curve Cresent
+  /rightCresent {
+    xCenter cp add yCenter cp add % x1 y1
+    xCenter cp add yCenter cp sub % x2 y2
+    xCenter yCenter moonR sub % x3 y3
+    curveto fill } def 
+
+  gsave 
+    angle neg rotate
+    currentpoint /yCenter exch def /xCenter exch def
+    newpath
+    phase (New) eq { xCenter yCenter moonR 0 360 arc ifDark {stroke}{fill} ifelse } if
+    phase (Full) eq { xCenter yCenter moonR 0 360 arc ifDark {fill}{stroke} ifelse } if
+    % First quarter dark left
+    phase (First) eq { ifDark {leftQuarter} {rightQuarter} ifelse } if 
+    % Last quarter dark right
+    phase (Last) eq { ifDark {rightQuarter} {leftQuarter} ifelse } if 
+
+    % Cresent and Gibbous are connected to Half Circle
+    % Cresent and Gibbous share the same Arc
+    phase (WaningGibbous) eq {ifDark {leftHalf}{rightHalf} ifelse rightCresent} if
+    phase (WaningCrescent) eq {ifDark {leftHalf}{rightHalf} ifelse leftCresent} if
+    phase (WaxingCrescent) eq {ifDark {rightHalf}{leftHalf} ifelse rightCresent} if
+    phase (WaxingGibbous) eq {ifDark {rightHalf}{leftHalf} ifelse leftCresent} if
+
+  grestore
+} def %pom
+
+%%Page: 1 1
+%% Ink hits the Paper starting Here!
+ifDark { 
+  0 0 moveto 
+  paperWidth 0 rlineto
+  0 paperHeight rlineto
+  paperWidth neg 0 rlineto
+  closepath 0 setgray fill
+    newpath
+    1 setgray
+    xMid yMid rad1 0 360 arc  fill 
+    0 setgray
+    xMid yMid rad3 0 360 arc  fill
+} if
+
+%  Year in Center
+ifDark {1}{0} ifelse setgray
+/HelveticaLTPro-Bold findfont 316 scalefont setfont
+year stringwidth pop /half exch 2.0 div def
+xMid half sub yMid moveto year show 
+xMid half sub 7.7 add yMid 12 sub moveto
+/Helvetica findfont 10 scalefont setfont
+(Designed by John Dey) show
+
+% Draw City Name
+/drawCityName {
+    /HelveticaLTPro-Bold findfont 135 scalefont setfont
+    /baseLine exch def
+    /width city stringwidth pop def
+    paperWidth width sub 108 sub
+      baseLine 82   add moveto city show
+    /HelveticaLTPro-Bold findfont 100 scalefont setfont
+    /width latatude stringwidth pop def
+    paperWidth width sub 108 sub 3 add
+      baseLine moveto latatude show
+} def
+cityMargin drawCityName
+
+% xMid yMid tick
+newpath
+
+% Place Month Text 
+% Arc Lenght calculation: angle = ArcLen * (360.0/pi*D)
+/CenterAngle 450 dayArc 2.0 div sub def % center of box, center for text 
+/HelveticaLTPro-Bold findfont 68 scalefont setfont
+/rad-Month rad3 72 sub def  %% radus for Month type
+/monthAngle 435 def
+/ledge EdgeAngle def
+/doy 0 def
+gsave   % Write Names of Months
+  xMid yMid translate
+  0 1 11 { /index exch def 
+    months index get
+    68 monthAngle rad-Month outsidecircletext 
+    /monthAngle monthAngle 30 sub def
+  } for
+grestore
+
+% Draw Gray boxes first! 
+ifLunar { Lunar } if
+
+%  Loop for every Day 
+%  Draw the Gray boxes first!  (Day of month)
+%  Draw the Black boxes First! for Sat/Sun
+/edge EdgeAngle def % Messy math for edge text
+/dowI DowI def
+/mI MI def
+/dom Dom def
+0 1 days_year 1 sub { 
+  /doy exch def
+  % reverse Text Boxes for Day of Month White/Gray or Black/gray for Dark mode
+  doy 2 mod 1 eq 
+   {xMid yMid rad2 edge edge dayArc sub arcn
+    xMid yMid rad3 edge dayArc sub edge arc 
+    ifDark {0}{.85} ifelse setgray closepath fill % ifDark {1}{0} ifelse setgray
+   } if
+   % Black Text Boxes for Sat Sun XX 
+   newpath
+   0 dowI 7 mod eq 6 dowI 7 mod eq or
+   {xMid yMid rad1 .5 add edge edge dayArc sub arcn
+     xMid yMid rad2 edge dayArc sub edge arc
+     0 setgray closepath fill 
+   } if
+   % Move to next day
+   /edge edge dayArc sub def
+   /dowI dowI 1 add def   % index for dayofweek
+   /dom  dom  1 add def   % day of month
+   dom monthlen mI get gt { /dom 1 def /mI mI 1 add def} if
+} for
+
+/edge EdgeAngle def  % Messy math for edge text
+DowI /dowI exch def
+MI /mI exch def
+Dom /dom exch def
+/dayofyear 1 def
+
+% Make one more trip around the sun, day of week and month
+% Text for Day of Month and Day of week
+/BabelSans findfont fontSize scalefont setfont
+0 1 days_year 1 sub { 
+  /doy exch def
+  % define angle for each day
+  /xc CenterAngle cos def  
+  /yc CenterAngle sin def
+  /plus90 CenterAngle 270 add def
+  /s2 2 string def  % string for Day of Month
+  % ifDark {1}{0} ifelse setgray
+
+  % Draw Lines between days
+  .5 setlinewidth
+  0 setgray
+  ifLunar {
+    rad0 radI edge radianline 
+  } {
+    rad1 .5 add radI edge radianline 
+  } ifelse
+  % draw lines between Months, Use heavier line, extend past radI
+  1 dom eq { 
+     ifDark {1}{0} ifelse setgray
+     1.5 setlinewidth
+     rad1 rad3 20 sub edge radianLine
+     } if  
+
+  % Lable Day of Month 1-31 Normal Black - Dark Mode Black/White 
+  doy 2 mod 1 eq 
+      { ifDark {1 setgray}{0 setgray} ifelse }
+      { ifDark {0 setgray}{0 setgray} ifelse }
+  ifelse
+  xMid xc radD mul add yMid yc radD mul add plus90 dom s2 cvs AngleText 
+
+  % Draw Day of Week 
+  % Setgray to White if Sat Sun 
+  newpath
+  0 dowI 7 mod eq 6 dowI 7 mod eq or 
+    {1 setgray }
+    {0 setgray } ifelse  
+
+  % Draw Day of Week 
+  xMid xc radW mul add yMid yc radW mul add plus90 
+    dayofweek dowI 7 mod get AngleText
+
+  % draw white line btw Sat Sun
+  0 dowI 7 mod eq { rad1 .5 sub rad2 edge (norm) radianlinewhite } if
+  % Todo If boundry between Sat Sun is Month boundry use (thick)
+  0 dowI 7 mod eq dom 1 eq and { rad1 .5 sub rad2 edge (thick) radianlinewhite } if
+  
+  % Move to next day
+  /CenterAngle CenterAngle dayArc sub def
+  /edge edge dayArc sub def
+  /dowI dowI 1 add def   % index for dayofweek
+  /dom  dom  1 add def   % day of month
+  dom monthlen mI get gt { /dom 1 def /mI mI 1 add def} if
+} for
+
+% Draw the Outer Arcs for Months, Boxes, Days of Month, Days of Week
+% This needs to be done last to clean up the halftone boxes for days and Saturday Sunday
+newpath
+1 setlinewidth
+ifLunar {
+  xMid yMid rad0 0 360 arc  stroke
+} if
+ifDark {  
+    0 setgray % Black in the middle
+    xMid yMid rad2 0 360 arc  stroke
+    rad1 radI 450 radianline   % Hack for 2026 Dark mode
+    %1 setgray % Draw outer Lines in White
+    %xMid yMid rad1 0 360 arc  stroke
+    %xMid yMid rad3 0 360 arc  stroke
+}
+{ 
+    0 setgray
+    xMid yMid rad1 0 360 arc  stroke
+    xMid yMid rad2 0 360 arc  stroke
+    xMid yMid rad3 0 360 arc  stroke
+} ifelse
+
