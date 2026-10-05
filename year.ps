@@ -1,0 +1,78 @@
+%!PS-Adobe
+%%Creator: John Dey Copyright 2023, 2024, 2025, 2026
+%%Title: Type Set the Year 
+%%CreationDate: Oct 2027
+
+%% Lets try to draw the Year in the Center of the paper.
+
+<<
+  /PageSize [792 612]   % Letter landscape: 11 x 8.5 inches
+  /Orientation 0
+>> setpagedevice
+
+/year { (2027) } def
+
+/inch { 72.0 mul } def
+/paperWidth  {11 inch } def
+/paperHeight {8.5 inch } def
+
+/xMid {paperWidth 2.0 div } def
+/yMid {paperHeight 2.0 div } def
+/ifDark false def
+
+
+% Draw a Tick Mark in the Center of the Paper
+/Tick {
+    /y exch def
+    /x exch def
+    newpath
+    ifDark {1}{0} ifelse setgray
+    1 setlinewidth
+    xMid 20 sub yMid moveto 40 0 rlineto stroke
+    xMid yMid 20 sub moveto 0 40 rlineto stroke
+} def
+
+% Draw a Tick Mark in the Center of the Paper
+/xTick {
+    /y exch def
+    /x exch def
+    newpath
+    ifDark {1}{0} ifelse setgray
+    .5 setlinewidth
+    x 20 sub y 20 sub moveto 40 40 rlineto stroke
+    x 20 sub y 20 add moveto 40 -40 rlineto stroke
+} def
+
+%  Year in Center
+/drawYear {
+    ifDark {1}{0} ifelse setgray
+    /HelveticaLTPro-Bold findfont 316 scalefont setfont
+    xMid yMid moveto
+    year false charpath pathbbox
+    /ury exch def
+    /urx exch def
+    /lly exch def
+    /llx exch def 
+    /BoxWidth urx llx sub def
+    /BoxHeight ury lly sub def
+    /Xoffset llx xMid sub def
+    /Yoffset lly yMid sub def
+    /baseX xMid BoxWidth 2 div sub def
+    /baseY yMid BoxHeight 2 div sub def
+    baseX baseY xTick 
+    baseX baseY moveto 
+    year show
+    newpath
+    baseX Xoffset add baseY Yoffset add moveto
+%%  draw a box around the year
+    .5 setlinewidth
+    BoxWidth 0 rlineto 0 BoxHeight rlineto BoxWidth neg 0 rlineto closepath stroke
+    baseX 7.7 add baseY 12 sub moveto
+    /Helvetica findfont 10 scalefont setfont
+    (Designed by John Dey) show
+} def
+
+xMid yMid Tick
+drawYear
+
+showpage

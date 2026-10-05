@@ -25,8 +25,8 @@ __author__ = "John Dey"
 __contact__ = "fizwit@gmail.com"
 __copyright__ = "Copyright 2015-2026"
 __license__ = "GPLv3"
-__date__ = "2021/08/26"
-__version__ = "1.0.1"
+__date__ = "2026.10.03"
+__version__ = "1.0.2"
 
 import ephem
 import datetime
@@ -85,7 +85,7 @@ def sun_rise_set(city, year):
             label = 'SolEqn'  # This day is an Soltice or Equinox
         else:
             label = 'Sol'
-        print("{:d} {:6.4f} {:7.4f} {} %% Sun Rise/Set: {} {} PST".format(
+        print("{:d} {:6.4f} {:7.4f} {} % Sun Rise/Set: {} {} PST".format(
               day, rise_dec, set_dec, label, sol.strftime("%b-%d %H:%M:%S"), local_set.strftime("%H:%M:%S")))
         city.date += 1
     sys.stderr.write("Ealest Sun Rise: {}\n".format(earlest_sol.strftime("%b-%d %H:%M:%S")))
@@ -109,7 +109,7 @@ def sol_angle_localtime(ephem_date):
 def sol(year):
     """ Soltice and Equinox data
         Output format
-        77.89 (Spring Equinox 04:30) event %% 2016/3/20 04:30:03Z
+        77.89 (Spring Equinox 04:30) event % 2016/3/20 04:30:03Z
     """
     dayArc = 360.0 / float(days_year)
     events = [('Spring Equinox', ephem.next_equinox(f"{year}/1/1")),
@@ -120,7 +120,7 @@ def sol(year):
 
     for day in events:
         (angle, time_str, local, dayofyear) = sol_angle_localtime(day[1])
-        print("%% {:6.2f} ({} {}) event %% {} ".format(angle, day[0], time_str, local))
+        print("% {:6.2f} ({} {}) event % {} ".format(angle, day[0], time_str, local))
         SolEqn.append(dayofyear)
 
 def interpolate_cresent_moon(moons):
@@ -140,7 +140,7 @@ def interpolate_cresent_moon(moons):
             if diff < 0:
                 diff = 360 + diff
             newAngle = lastAngle + (diff / 2.0)
-            pom_str = "{:6.2f} ({}) ({}) pom %% ".format(newAngle, newPhases[newP], newPhases[newP])
+            pom_str = "{:6.2f} ({}) ({}) pom % ".format(newAngle, newPhases[newP], newPhases[newP])
             if lastAngle > 0.0 and lastAngle < 360.0:
                 newMoons.append(lastr)
             if newAngle > 0.0 and newAngle < 360.0:
@@ -176,7 +176,7 @@ def pom_format(name, ephem_date, Year):
     Month = calendar.month_abbr[month]
     formated_datetime = f"{year}  {Month} {day} {hour}:{minute:02d}"
     (cmd, des) = name.split()
-    pom_str = f"{angle:.2f} ({name} {time_str}) ({cmd}) pom %% {formated_datetime}"
+    pom_str = f"{angle:6.2f} ({name} {time_str}) ({cmd}) pom % {formated_datetime}"
     return pom_str
 
 def get_moons_in_year(year):
@@ -216,8 +216,8 @@ if __name__ == "__main__":
     parser = create_parser()
     args = parser.parse_args()
     
-    print(f"%% Year: {args.year}")
-    print(f"%% Location: {args.location}")
+    print(f"% Year: {args.year}")
+    print(f"% Location: {args.location}")
     year = int(args.year)
     if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0):
         days_year = 366  # is a leap year

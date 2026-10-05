@@ -1,5 +1,10 @@
 # Release Notes
 
+### 2027
+  - rewrite how the city is typeset
+  - center the year in both x and y directions
+  - Move Port Townsend and Seattle into one file,
+
 ### 2026 Jan Dark Mode
 
 Version 2.1.0
