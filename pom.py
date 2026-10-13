@@ -44,13 +44,14 @@ days_year = 365
 SolEqn = []
 
 # ephem knows about Seattle and other Major city's but not Port Townsend
-pt = ephem.Observer()
-pt.name ='Port Townsend'
-pt.lat = '48.0'  # 49 7' 2"
-pt.lon = '-122.760556'
-pt.elevation = 50
-pt.pressure = 0
-pt.horizon = '-0:34'
+local_cities = ['PT']
+PT = ephem.Observer()
+PT.name ='Port Townsend'
+PT.lat = '48.0'  # 49 7' 2"
+PT.lon = '-122.760556'
+PT.elevation = 50
+PT.pressure = 0
+PT.horizon = '-0:34'
 
 
 def sun_rise_set(city, year):
@@ -58,11 +59,11 @@ def sun_rise_set(city, year):
     Calculate sun rise and set for whole year.
     <city> an ephem city object
     """
-    city.date = ephem.Date("{}/01/01 12:00:00".format(year))
+    city.date = ephem.Date("{}/01/01 00:00:00".format(year))
     sun = ephem.Sun()
     earlest_dec = 24.0
     latest_dec = 0.0
-    longest_len = 8.0
+    longest_len = 4.0
     for day in range(1, days_year + 1):
         sunrise = city.next_rising(sun)
         sunset = city.next_setting(sun)
@@ -85,7 +86,7 @@ def sun_rise_set(city, year):
             label = 'SolEqn'  # This day is an Soltice or Equinox
         else:
             label = 'Sol'
-        print("{:d} {:6.4f} {:7.4f} {} % Sun Rise/Set: {} {} PST".format(
+        print("{:d} {:6.4f} {:7.4f} {} % Sun Rise/Set: {} {} ".format(
               day, rise_dec, set_dec, label, sol.strftime("%b-%d %H:%M:%S"), local_set.strftime("%H:%M:%S")))
         city.date += 1
     sys.stderr.write("Ealest Sun Rise: {}\n".format(earlest_sol.strftime("%b-%d %H:%M:%S")))
@@ -208,7 +209,8 @@ def get_moons_in_year(year):
 def create_parser():
     parser = argparse.ArgumentParser(description='Pom Phase of Moon Calculator')
     parser.add_argument( '--year', type=int, required=True, help='Year (e.g., 2026)')
-    parser.add_argument( '--location', type=str, required=True, help='Location (e.g., Seattle)')
+    parser.add_argument( '--city', type=str, required=True, help='Location (e.g., Seattle)')
+    parser.add_argument( '--zone', type=str, required=False, help='TimeZone Default Etc/GMT+8')
     return parser
 
 
@@ -217,7 +219,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     print(f"% Year: {args.year}")
-    print(f"% Location: {args.location}")
+    print(f"% Location: {args.city}")
     year = int(args.year)
     if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0):
         days_year = 366  # is a leap year
@@ -227,10 +229,15 @@ if __name__ == "__main__":
     for phase in MoonPhases:
         print(phase)
 
-    #  'Los Angeles'
-    if args.location == 'Seattle':
-        city = ephem.city('Seattle')
-    elif args.location == 'pt':
-        city = pt
+    if args.zone:
+        zone = ZoneInfo(args.zone)
+    if args.city in local_cities:
+        city = args.city 
+    else:
+        try:
+            city = ephem.city(args.city)
+        except KeyError:
+            print(f"City not found: {args.city}")
+            sys.exit(1)
     sun_rise_set(city, year)
     print("showpage\n\n%%EOF\n")
