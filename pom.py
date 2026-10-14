@@ -29,6 +29,7 @@ __date__ = "2026.10.03"
 __version__ = "1.0.2"
 
 import ephem
+import ephem.cities
 import datetime
 import sys
 from zoneinfo import ZoneInfo
@@ -36,8 +37,8 @@ import calendar
 import argparse
 
 
-zone = ZoneInfo('America/Los_Angeles')  # With Daylight Savings
-zone = ZoneInfo('Etc/GMT+8')
+ZoneName = 'Etc/GMT+8' # 'America/Los_Angeles' for Daylight Savings
+zone = ZoneInfo(ZoneName)
 days_year = 365
 
 
@@ -53,6 +54,13 @@ PT.elevation = 50
 PT.pressure = 0
 PT.horizon = '-0:34'
 
+def city_info(city_name):
+    Lat = float(ephem.cities._city_data[city_name][0])
+    L = int(Lat)
+    H = int((Lat - int(Lat)) * 60.0)
+    S = int((Lat - L - H /60.0) * 3600)
+    print(f"% /city {{({city_name})}} def")
+    print(f"% /latitude {{ ({L}" '\\' f"260{H}'{S}" '") } def')
 
 def sun_rise_set(city, year):
     """
@@ -64,6 +72,7 @@ def sun_rise_set(city, year):
     earlest_dec = 24.0
     latest_dec = 0.0
     longest_len = 4.0
+    shortest_len = 12.0
     for day in range(1, days_year + 1):
         sunrise = city.next_rising(sun)
         sunset = city.next_setting(sun)
@@ -82,17 +91,26 @@ def sun_rise_set(city, year):
             longest_len = day_length
             longest_day = sol
             longest_set = local_set
+        if day_length < shortest_len:
+            shortest_len = day_length
+            shortest_day = sol
+            shortest_set = local_set
         if day in SolEqn:
             label = 'SolEqn'  # This day is an Soltice or Equinox
         else:
             label = 'Sol'
-        print("{:d} {:6.4f} {:7.4f} {} % Sun Rise/Set: {} {} ".format(
-              day, rise_dec, set_dec, label, sol.strftime("%b-%d %H:%M:%S"), local_set.strftime("%H:%M:%S")))
+        print("{:d} {:6.4f} {:7.4f} {} % Sun Rise/Set: {} {} {}".format(
+              day, rise_dec, set_dec, label, sol.strftime("%b-%d %H:%M:%S"), local_set.strftime("%H:%M:%S"),
+              ZoneName))
         city.date += 1
-    sys.stderr.write("Ealest Sun Rise: {}\n".format(earlest_sol.strftime("%b-%d %H:%M:%S")))
-    sys.stderr.write("Longest Day      {} {}\n".format(longest_day.strftime("%b-%d %H:%M:%S"),
-                     longest_set.strftime(" %H:%M:%S")))
-    sys.stderr.write("Latest Sun Set : {}\n".format(latest_sunset.strftime("%b-%d %H:%M:%S")))
+    print("Earliest Sun Rise: {}".format(earlest_sol.strftime("%b-%d %H:%M:%S")), file=sys.stderr)
+    print("Latest Sun Set : {}".format(latest_sunset.strftime("%b-%d %H:%M:%S")), file=sys.stderr)
+    H = int(longest_len)
+    S = int((longest_len - int(longest_len))*60.0)
+    print("Longest Day      {} {:2}:{:02}".format(longest_day.strftime("%b-%d"), H, S), file=sys.stderr)
+    H = int(shortest_len)
+    S = int((shortest_len - int(shortest_len))*60.0)
+    print("Shortest Day     {} {:2}:{:02}".format(shortest_day.strftime("%b-%d"), H, S), file=sys.stderr)
 
 def sol_angle_localtime(ephem_date):
     """ convert UTD ephem date to local time
@@ -219,7 +237,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     print(f"% Year: {args.year}")
-    print(f"% Location: {args.city}")
+    city_info(args.city)
     year = int(args.year)
     if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0):
         days_year = 366  # is a leap year
@@ -230,7 +248,8 @@ if __name__ == "__main__":
         print(phase)
 
     if args.zone:
-        zone = ZoneInfo(args.zone)
+        ZoneName = args.zone
+        zone = ZoneInfo(ZoneName)
     if args.city in local_cities:
         city = args.city 
     else:
